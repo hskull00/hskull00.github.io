@@ -20,30 +20,78 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="我的博客">
-<meta property="og:type" content="website">
-<meta property="og:title" content="hskull">
-<meta property="og:url" content="http://example.com/index.html">
+  <meta name="description" content="​    想搭建一个博客很久了，但最近才着手做了这个事。使用博客记录一下平时自己的学习内容，同时也逼迫自己坚持学习。 ​    这里采用GitHub+Hexo搭建博客，可以选择买一个.com域名(啥域名都被注册了。。退而求其次整个cn吧，还便宜)，这样输入URL比较有逼格。记得提前买域名，因为要实名认证审核。 1. Git下载​    首先需要去注册一个GitHub账号，这步省略不说。之后，需要在">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一篇文章教会你搭建自己的博客">
+<meta property="og:url" content="http://example.com/2020/12/02/%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2/index.html">
 <meta property="og:site_name" content="hskull">
-<meta property="og:description" content="我的博客">
+<meta property="og:description" content="​    想搭建一个博客很久了，但最近才着手做了这个事。使用博客记录一下平时自己的学习内容，同时也逼迫自己坚持学习。 ​    这里采用GitHub+Hexo搭建博客，可以选择买一个.com域名(啥域名都被注册了。。退而求其次整个cn吧，还便宜)，这样输入URL比较有逼格。记得提前买域名，因为要实名认证审核。 1. Git下载​    首先需要去注册一个GitHub账号，这步省略不说。之后，需要在">
 <meta property="og:locale" content="zh_CH">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201116092100527.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201116203201882.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201116203356662.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201116215113286.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201116215903303.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201117212024815.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201117212136519.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201117212409292.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201117212908672.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201128224437869.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201128225757960.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201128230537086.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201128231603100.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201128231714178.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201128232757143.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201128233248440.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201128233347882.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201129111140260.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201129181551763.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201129185223857.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201129185538116.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201129191523497.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201129201800613.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201129202140842.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201129204626379.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201129204725555.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201129204851432.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201129210202166.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201129210058129.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201129230705411.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201129232010727.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201129215432862.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201129230733432.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201129220108991.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201129231810031.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201130221219736.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201130225922939.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201130230403385.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201130230901317.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201130231735139.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201201225211259.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201201230559669.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201201232721018.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201201233741081.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201202000040602.png">
+<meta property="article:published_time" content="2020-12-01T16:48:16.222Z">
+<meta property="article:modified_time" content="2020-12-01T16:53:09.347Z">
 <meta property="article:author" content="hskull">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201116092100527.png">
 
-<link rel="canonical" href="http://example.com/">
+<link rel="canonical" href="http://example.com/2020/12/02/%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2/">
 
 
 <script id="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome : true,
-    isPost : false,
+    isHome : false,
+    isPost : true,
     lang   : 'zh-Ch'
   };
 </script>
 
-  <title>hskull</title>
+  <title>一篇文章教会你搭建自己的博客 | hskull</title>
   
 
 
@@ -141,9 +189,10 @@
         <div class="content-wrap">
           
 
-          <div class="content index posts-expand">
+          <div class="content post posts-expand">
             
-      
+
+    
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Ch">
@@ -159,10 +208,9 @@
       <meta itemprop="name" content="hskull">
     </span>
       <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/12/02/%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2/" class="post-title-link" itemprop="url">一篇文章教会你搭建自己的博客</a>
-        </h2>
+        <h1 class="post-title" itemprop="name headline">
+          一篇文章教会你搭建自己的博客
+        </h1>
 
         <div class="post-meta">
             <span class="post-meta-item">
@@ -186,7 +234,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>​    想搭建一个博客很久了，但最近才着手做了这个事。使用博客记录一下平时自己的学习内容，同时也逼迫自己坚持学习。</p>
+        <p>​    想搭建一个博客很久了，但最近才着手做了这个事。使用博客记录一下平时自己的学习内容，同时也逼迫自己坚持学习。</p>
 <p>​    这里采用GitHub+Hexo搭建博客，可以选择买一个.com域名(啥域名都被注册了。。退而求其次整个cn吧，还便宜)，这样输入URL比较有逼格。记得提前买域名，因为要实名认证审核。</p>
 <h1 id="1-Git下载"><a href="#1-Git下载" class="headerlink" title="1. Git下载"></a>1. Git下载</h1><p>​    首先需要去注册一个GitHub账号，这步省略不说。之后，需要在本地下载一个GitGub客户端，可以去<a target="_blank" rel="noopener" href="https://git-scm.com/">Git官网</a>进行下载，这里最新版本是2.29.2。</p>
 <p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201116092100527.png" alt="image-20201116092100527"></p>
@@ -441,91 +489,30 @@
 <li> 接下来</li>
 </ul>
 
-      
     </div>
 
     
     
     
+
       <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Ch">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2020/11/29/hello-world/">
+        
 
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="hskull">
-      <meta itemprop="description" content="我的博客">
-    </span>
 
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="hskull">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/11/29/hello-world/" class="post-title-link" itemprop="url">Hello World</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">نُشر في</span>
-
-              <time title="أُنشأ: 2020-11-29 20:44:57" itemprop="dateCreated datePublished" datetime="2020-11-29T20:44:57+08:00">2020-11-29</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-
-      
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/11/29/hello-world/" rel="prev" title="Hello World">
+      <i class="fa fa-chevron-left"></i> Hello World
+    </a></div>
+      <div class="post-nav-item"></div>
     </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
       </footer>
+    
   </article>
   
   
-  
-
-
   
 
 
@@ -578,6 +565,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-Git%E4%B8%8B%E8%BD%BD"><span class="nav-number">1.</span> <span class="nav-text">1. Git下载</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-%E7%BB%91%E5%AE%9AGitHub%E5%8F%8A%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">2. 绑定GitHub及文件管理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%91%E5%AE%9A"><span class="nav-number">2.1.</span> <span class="nav-text">绑定</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86"><span class="nav-number">2.2.</span> <span class="nav-text">文件管理</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-%E5%AE%89%E8%A3%85node-js%E5%92%8CHexo"><span class="nav-number">3.</span> <span class="nav-text">3. 安装node.js和Hexo</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-Hexo%E7%9A%84%E5%AE%89%E8%A3%85"><span class="nav-number">4.</span> <span class="nav-text">4. Hexo的安装</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-%E5%B0%86Hexo%E9%83%A8%E7%BD%B2%E5%88%B0GitHub"><span class="nav-number">5.</span> <span class="nav-text">5. 将Hexo部署到GitHub</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#6-%E8%B4%AD%E4%B9%B0%E5%9F%9F%E5%90%8D%E5%B9%B6%E7%BB%91%E5%AE%9A"><span class="nav-number">6.</span> <span class="nav-text">6. 购买域名并绑定</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#7-%E6%9B%B4%E6%8D%A2%E5%8F%8A%E7%BE%8E%E5%8C%96%E4%B8%BB%E9%A2%98"><span class="nav-number">7.</span> <span class="nav-text">7. 更换及美化主题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#8-%E5%8F%91%E5%B8%83%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0"><span class="nav-number">8.</span> <span class="nav-text">8. 发布第一篇文章</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
