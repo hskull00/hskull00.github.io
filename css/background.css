@@ -1,10 +1,6 @@
 #web-bg{
   /* 背景图像的地址（url括号里）  */
   background: url(https://cdn.jsdelivr.net/gh/hskull00/Images/博客相关/20201231191303.png);
-  /* 背景图像不重复 */
-  background-repeat: no-repeat;
-  /* 背景图像大小 */
-  background-size: cover;
   
   /* 标准的语法 */
   /*background: linear-gradient(to right, red, blue);*/
