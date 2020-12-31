@@ -1,4 +1,4 @@
-#web_bg{
+#body-wrap{
   /* 背景图像的地址（url括号里）  */
   background: url(https://cdn.jsdelivr.net/gh/hskull00/Images/博客相关/20201231190704.png);
   /* 背景图像不重复 */
