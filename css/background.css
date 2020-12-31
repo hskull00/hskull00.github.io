@@ -7,5 +7,5 @@
   background-size: cover;
   
   /* 标准的语法 */
-  background: linear-gradient(to right, red, blue);
+  /*background: linear-gradient(to right, red, blue);*/
 }
