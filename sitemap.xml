@@ -9,6 +9,13 @@
   </url>
   
   <url>
+    <loc>http://example.com/tags/index.html</loc>
+    
+    <lastmod>2020-12-31</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://example.com/2020/12/31/%E6%B5%8B%E8%AF%95/</loc>
     
     <lastmod>2020-12-31</lastmod>
@@ -24,13 +31,6 @@
   
   <url>
     <loc>http://example.com/categories/index.html</loc>
-    
-    <lastmod>2020-12-02</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://example.com/tags/index.html</loc>
     
     <lastmod>2020-12-02</lastmod>
     
