@@ -1492,6 +1492,13 @@ a {
 a:hover {
   color: #49b1f5;
 }
+#site-title,
+#site-subtitle,
+#site-name,
+#aside_content .author-info__name,
+#aside_content .author-info__description {
+  font-family: Microsoft YaHei;
+}
 .is-center {
   text-align: center;
 }
@@ -2563,6 +2570,7 @@ blockquote footer cite:before {
   padding: 0.5rem;
   text-align: center;
   font-size: 14px;
+  font-family: Microsoft YaHei;
 }
 @media screen and (max-width: 768px) {
   #error-wrap .error-content .error-info {
@@ -4514,7 +4522,7 @@ _:future,
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 9999;
+  z-index: 30;
   pointer-events: none;
 }
 .medium-zoom-image--opened {
