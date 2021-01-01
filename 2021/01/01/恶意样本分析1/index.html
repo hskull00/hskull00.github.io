@@ -1,0 +1,328 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>如何分析各种类型的恶意样本之--C#恶意样本分析技巧 | 少卿の博客</title><meta name="keywords" content="‘C#,.NET,样本,分析'"><meta name="author" content="hskull,hskull@foxmail.com"><meta name="copyright" content="hskull"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><meta name="description" content="​    日常样本分析中，我们会遇到各式各样的语言所编写的恶意样本。除了最基础的C&#x2F;C++之外，使用C#、python、VBScript、Office宏、PowerShell来构造恶意代码也较为常见。 ​    为了让新入门者对各种类型样本的代码结构和分析流程都进行一次了解，我构思了如下系列文章《如何分析各种类型的恶意样本》来进行讲解，希望可以帮到大家。 概述 C#是微软公司发布的一种由C和C++">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何分析各种类型的恶意样本之--C#恶意样本分析技巧">
+<meta property="og:url" content="http://example.com/2021/01/01/%E6%81%B6%E6%84%8F%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%901/index.html">
+<meta property="og:site_name" content="少卿の博客">
+<meta property="og:description" content="​    日常样本分析中，我们会遇到各式各样的语言所编写的恶意样本。除了最基础的C&#x2F;C++之外，使用C#、python、VBScript、Office宏、PowerShell来构造恶意代码也较为常见。 ​    为了让新入门者对各种类型样本的代码结构和分析流程都进行一次了解，我构思了如下系列文章《如何分析各种类型的恶意样本》来进行讲解，希望可以帮到大家。 概述 C#是微软公司发布的一种由C和C++">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/博客相关/20210101181703.jpg">
+<meta property="article:published_time" content="2020-12-31T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-01-01T14:30:38.188Z">
+<meta property="article:author" content="hskull">
+<meta property="article:tag" content="C#">
+<meta property="article:tag" content=".NET">
+<meta property="article:tag" content="样本分析">
+<meta property="article:tag" content="二进制">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/博客相关/20210101181703.jpg"><link rel="shortcut icon" href="/img/hacker2.png"><link rel="canonical" href="http://example.com/2021/01/01/%E6%81%B6%E6%84%8F%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%901/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin=""/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web&amp;display=swap"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: true,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: hskull","link":"链接: ","source":"来源: 少卿の博客","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  ClickShowText: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: true
+};
+
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+    const now = new Date()
+    const expiryDay = ttl * 86400000
+    const item = {
+      value: value,
+      expiry: now.getTime() + expiryDay,
+    }
+    localStorage.setItem(key, JSON.stringify(item))
+  },
+
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
+
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
+
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}
+
+// https://stackoverflow.com/questions/16839698/jquery-getscript-alternative-in-native-javascript
+const getScript = url => new Promise((resolve, reject) => {
+  const script = document.createElement('script')
+  script.src = url
+  script.async = true
+  script.onerror = reject
+  script.onload = script.onreadystatechange = function() {
+    const loadState = this.readyState
+    if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+    script.onload = script.onreadystatechange = null
+    resolve()
+  }
+  document.head.appendChild(script)
+})</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-01-01 22:30:38'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(function () {  window.activateDarkMode = function () {
+    document.documentElement.setAttribute('data-theme', 'dark')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+    }
+  }
+  window.activateLightMode = function () {
+    document.documentElement.setAttribute('data-theme', 'light')
+   if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+    }
+  }
+  const autoChangeMode = 'false'
+  const t = saveToLocal.get('theme')
+  if (autoChangeMode === '1') {
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+    const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+    const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+    if (t === undefined) {
+      if (isLightMode) activateLightMode()
+      else if (isDarkMode) activateDarkMode()
+      else if (isNotSpecified || hasNoSupport) {
+        const now = new Date()
+        const hour = now.getHours()
+        const isNight = hour <= 6 || hour >= 18
+        isNight ? activateDarkMode() : activateLightMode()
+      }
+      window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+        if (saveToLocal.get('theme') === undefined) {
+          e.matches ? activateDarkMode() : activateLightMode()
+        }
+      })
+    } else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else if (autoChangeMode === '2') {
+    const now = new Date()
+    const hour = now.getHours()
+    const isNight = hour <= 6 || hour >= 18
+    if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+    else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else {
+    if (t === 'dark') activateDarkMode()
+    else if (t === 'light') activateLightMode()
+  }const asideStatus = saveToLocal.get('aside-status')
+if (asideStatus !== undefined) {
+   if (asideStatus === 'hide') {
+     document.documentElement.classList.add('hide-aside')
+   } else {
+     document.documentElement.classList.remove('hide-aside')
+   }
+}})()</script><meta name="generator" content="Hexo 5.2.0"><link rel="alternate" href="/atom.xml" title="少卿の博客" type="application/atom+xml">
+</head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" src="https://cdn.jsdelivr.net/gh/hskull00/Images/博客相关/20201231224217.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">2</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">6</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 归类</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 资料</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 图库</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 技术博客</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(https://cdn.jsdelivr.net/gh/hskull00/Images/博客相关/20210101181703.jpg)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">少卿の博客</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 归类</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 资料</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 图库</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 技术博客</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">如何分析各种类型的恶意样本之--C#恶意样本分析技巧</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-12-31T16:00:00.000Z" title="发表于 2021-01-01 00:00:00">2021-01-01</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-01-01T14:30:38.188Z" title="更新于 2021-01-01 22:30:38">2021-01-01</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%95%99%E7%A8%8B/">教程</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%95%99%E7%A8%8B/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/">样本分析</a></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">2k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>6分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>​    日常样本分析中，我们会遇到各式各样的语言所编写的恶意样本。除了最基础的C/C++之外，使用C#、python、VBScript、Office宏、PowerShell来构造恶意代码也较为常见。</p>
+<p>​    为了让新入门者对各种类型样本的代码结构和分析流程都进行一次了解，我构思了如下系列文章《如何分析各种类型的恶意样本》来进行讲解，希望可以帮到大家。</p>
+<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><ul>
+<li>C#是<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E5%BE%AE%E8%BD%AF%E5%85%AC%E5%8F%B8/732128">微软公司</a>发布的一种由C和C++衍生出来的面向对象的编程语言、运行于<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/.NET%20Framework">.NET Framework</a>和.NET Core(完全开源，跨平台)之上的高级程序设计语言。由于其相较于C/C++更为易于开发且同样强大，近年来越来越多的APT组织以及一些RAT工具都将C#做为主编程语言进行恶意代码的开发。</li>
+<li>.NET/C#的反编译工具常见的有：.Net Reflector、ILSpy/dnSpy、JetBrains dotPeek、GrayWolf等。我常用的是ILSpy/dnSpy这两个工具，尤其dnSpy所具有的动态调试功能是分析样本的利器。</li>
+<li>另外.Net/C#相关的逆向分析工具还有很多，比如解混淆的de4Dot，这些工具在吾爱的工具包中都已经集成了，需要可以去吾爱进行下载并使用。</li>
+</ul>
+<p>这里我将对一个典型的C#远控样本进行分析，对一些基础的C#分析技术点进行说明。</p>
+<p>样本信息如下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">描述</th>
+<th align="center">信息</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">MD5</td>
+<td align="center">BFA95399E5F9413A0EC9289FAA1DC801</td>
+</tr>
+</tbody></table>
+<p>拿到样本后通过Exeinfo查看，样本是一个.net程序，使用dnspy进行分析</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E5%8D%9A%E5%AE%A2%E7%9B%B8%E5%85%B3/image-20200513183039006.png"></p>
+<p>样本执行流程大致如下：</p>
+<img src="https://cdn.jsdelivr.net/gh/hskull00/Images/博客相关/image-20200515184314506.png" style="zoom:80%;" />
+
+<h1 id="详细分析"><a href="#详细分析" class="headerlink" title="详细分析"></a>详细分析</h1><h2 id="样本自身功能分析"><a href="#样本自身功能分析" class="headerlink" title="样本自身功能分析"></a>样本自身功能分析</h2><ul>
+<li>将样本拖入DnSpy开始进行分析（Dnspy运行需要.Net Framework环境的支持，不能运行请下载并安装后再运行Dnspy），拖入后会显示下图所示一些信息包括文件名以及版本等静态信息。另外要注意的是exe文件拖入Dnspy后在侧边栏中名称为黄色，而dll文件拖入后在侧边栏中名称为白色。</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E5%8D%9A%E5%AE%A2%E7%9B%B8%E5%85%B3/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90120210101214706.png"></p>
+<p>之后右键Go To Entry Point即可跳转到main函数，一般来说程序具有窗口(无论隐藏与否)时，main函数都是用来调用Application.Run()进行窗口的启动(学过SDK/MFS的同学应该不陌生，这就相当于启动了窗口的消息循环)：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E5%8D%9A%E5%AE%A2%E7%9B%B8%E5%85%B3/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90120210101215321.png"></p>
+<p>一般来说，恶意操作都会在隐藏窗口类中进行，我们只需向下寻找即可。向下分析后果然找到了内嵌ShellCode代码：</p>
+<p><img src="D:\virus\20-5-14\分析报告20-5-14.assets\image-20200514101237484.png" alt="image-20200514101237484"></p>
+<p>这里提一句，在Dnspy中也可以进行交叉引用的分析，只要选中函数名或变量名，然后右键Analyze即可打开对应窗口进行查看，很方便：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E5%8D%9A%E5%AE%A2%E7%9B%B8%E5%85%B3/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90120210101220353.png"></p>
+<ul>
+<li>上述的shellcode在样本中是加密存储的，样本执行时会对其进行两次解密，这里就要用到Dnspy动态调试的功能来对解密后的shellcode进行dump，点击上方的start，默认以C#代码进行调试(另外还有IL和VB两种查看方式)，Dnspy调试快捷键和VS相同(F9、F10、F11)，我们在调试时，会自动显示出Locals窗口，里面对当前所在命令空间的变量进行实时显示。Dnspy中所有能显示的窗口都在Debug选项下。</li>
+</ul>
+<p><img src="C:/Users/hskul/AppData/Roaming/Typora/typora-user-images/image-20210101221551373.png" alt="image-20210101221551373"></p>
+<p>运行到解密完成后，观察 rawAssembly的值：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E5%8D%9A%E5%AE%A2%E7%9B%B8%E5%85%B3/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90120210101222121.png"></p>
+<p>将其中数据拿出后，发现解密后的shellcode为一个PE格式的恶意代码：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E5%8D%9A%E5%AE%A2%E7%9B%B8%E5%85%B3/image-20200514100156590.png"></p>
+<p>通过Locals中右键rawAssenbly进行save操作，将shellcdoe保存到本地，留待稍后分析。</p>
+<ul>
+<li>这里解密后的操作时利用C#反射的技术进行shellcode调用，可以判断dump到的shellcode为一个dll，接口为dll的Main函数，传入参数如下所示，同样通过调试运行观察内存得到：</li>
+</ul>
+<p><img src="D:\virus\20-5-14\分析报告20-5-14.assets\image-20200514101412539.png" alt="image-20200514101412539"></p>
+<h2 id="dump到的dll分析"><a href="#dump到的dll分析" class="headerlink" title="dump到的dll分析"></a>dump到的dll分析</h2><ul>
+<li>将要进行执行的恶意代码dump下来，确实是个dll文件，Dnspy分析其名称为CoreFunctions.dll(重要)，信息如下所示：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="center">描述</th>
+<th align="center">信息</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">MD5</td>
+<td align="center">501FEB03129FF392F6FFB5AEEC900356</td>
+</tr>
+</tbody></table>
+<p><img src="D:\virus\20-5-14\分析报告20-5-14.assets\image-20200514160735637.png" alt="image-20200514160735637"></p>
+<p>考虑自己写一个Loader然后将Loader.exe和dll一起加载如dnspy然后进行dll调试，要注意dll的命名要和其dnspy中反编译出的命名空间名称一致</p>
+<p>这里也可以借鉴前辈找到的底层函数：InvokeMethodFast(此函数在运行dll之后会被调用，步入断点所在的代码，就可以直接进入dll进行调试)。ps:这个方法可以一直运行下去，省了dump的麻烦，可谓非常厉害了</p>
+<p><img src="D:\virus\20-5-14\分析报告20-5-14.assets\image-20200514174945600.png" alt="image-20200514174945600"></p>
+<p>此dll执行的操作流程大致如下：</p>
+<p><strong>获取样本完整路径-&gt;加载样本的资源(“02bc3.resources”)-&gt;遍历资源找到”5de4f.png”的数据-&gt;对数据进行处理并以”JV6tiESFB”作为Key来解密数据-&gt;得到新的恶意代码并执行</strong></p>
+<p><img src="D:\virus\20-5-14\分析报告20-5-14.assets\image-20200514163656864.png" alt="image-20200514163656864"></p>
+<p>资源如图所示：</p>
+<p><img src="D:\virus\20-5-14\分析报告20-5-14.assets\image-20200514165728086.png" alt="image-20200514165728086"></p>
+<ol start="3">
+<li>依旧将新的恶意代码dump然后分析，命名为ReZer0V2.exe信息如下：</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th align="center">描述</th>
+<th align="center">信息</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">MD5</td>
+<td align="center">B9C0837EED92228BFD8C55E2D40630D6</td>
+</tr>
+</tbody></table>
+<p><img src="D:\virus\20-5-14\分析报告20-5-14.assets\image-20200514165433142.png" alt="image-20200514165433142"></p>
+<p>会从EntryPonit入口点开始运行代码，是一个exe，可以直接调试分析。由于有混淆不能正常调试，所以调试之前先使用de4dot进行解混淆操作。</p>
+<p>此恶意程序完成了如下的操作:</p>
+<p>创建互斥体”FWYvRWJ”防多开、睡眠主线程</p>
+<p><img src="D:\virus\20-5-14\分析报告20-5-14.assets\image-20200514181658845.png" alt="image-20200514181658845"></p>
+<p>查询指定文件：<code>&quot;C:\Users\Administrator\AppData\Roaming\wpohqL.exe&quot;</code>是否存在，不存在生成，完成对最开始样本的复制存储<img src="D:\virus\20-5-14\分析报告20-5-14.assets\image-20200514182340233.png" alt="image-20200514182340233"></p>
+<p>之后调用函数smethod_6进行操作：</p>
+<p><img src="D:\virus\20-5-14\分析报告20-5-14.assets\image-20200514182428739.png" alt="image-20200514182428739"></p>
+<p>主要完成了如下操作：</p>
+<p>向路径”C:\Users\Administrator\AppData\Local\Temp&quot;下生成了一个临时命名的临时文件，将资源中的XML数据进行替换之后填充如临时文件，如图所示：</p>
+<p><img src="D:\virus\20-5-14\分析报告20-5-14.assets\image-20200514213020087.png" alt="image-20200514213020087"></p>
+<p>构造一个进程启动信息，然后启动进程 schtasks.exe，输入命令为：/Create  /TN ”Updates\ wpohqL”  /XML  “C:\Users\Administrator\AppData\Local\Temp%.tmp”，创建一个计划任务，任务目的是在用户登录时启动程序：C:\Users\Administrator\AppData\Roaming\wpohqL.exe，完成对样本副本的持久化</p>
+<p>之后程序流程执行到运行一个新的恶意程序</p>
+<ol start="4">
+<li>dump新的恶意程序，这是一个C++的程序，信息如下：</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th align="center">描述</th>
+<th align="center">信息</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">MD5</td>
+<td align="center">eb5e1c063fab1a1a0f93ab615b72b461</td>
+</tr>
+</tbody></table>
+<p><img src="D:\virus\20-5-14\分析报告20-5-14.assets\image-20200515132504545.png" alt="image-20200515132504545"></p>
+<p>这个恶意程序就是做恶意操作的主要程序，有以下恶意行为：</p>
+<p>通过动态获取API地址来进行功能的实现，程序内置hash后的API名称字符串，通过函数sub.004031E5获取</p>
+<p>利用SetErrorMode()来进行反沙箱操作</p>
+<p><img src="D:\virus\20-5-14\分析报告20-5-14.assets\image-20200515144232160.png" alt="image-20200515144232160"></p>
+<p>调用advapi32.dll中的函数来计算出一个唯一hash，用于创建互斥体，图中一个为计算之前的，圈出来为计算之后的互斥体名称，检测多开</p>
+<p><img src="D:\virus\20-5-14\分析报告20-5-14.assets\image-20200515150755098.png" alt="image-20200515150755098"></p>
+<p><img src="D:\virus\20-5-14\分析报告20-5-14.assets\image-20200515143401005.png" alt="image-20200515143401005"></p>
+<ul>
+<li>函数有几个关键的call，分别用于完成不同的功能：</li>
+</ul>
+<p><img src="D:\virus\20-5-14\分析报告20-5-14.assets\image-20200515172814575.png" alt="image-20200515172814575"></p>
+<p>第一个call：</p>
+<p>获取注册表信息：</p>
+<p>“SOFTWARE\Mozilla\Mozilla Firefox”拼接为完整信息“SOFTWARE\Mozilla\Mozilla Firefox\53.0 (x 86 zh-C)\Main”，并向path环境变量中添加新的路径：”C:\Program Files\Mozilla Firefox”</p>
+<p><img src="D:\virus\20-5-14\分析报告20-5-14.assets\image-20200515174646957.png" alt="image-20200515174646957"></p>
+<p>检测dll nss3.dll是否存在，存在加载dll，动态获取API</p>
+<p><img src="D:\virus\20-5-14\分析报告20-5-14.assets\image-20200515174915441.png" alt="image-20200515174915441"></p>
+<p>获取的API有：</p>
+<p>NSS_Init、NSS_Shutdown、PK11_GetInternalKeySlot、PK11_FreeSlot、PK11_Authenticate、PK11SDR_Decrypt、PK11_CheckUserPassword、SECITEM_FreeItem</p>
+<p>之后大范围去将“\AppData\Roaming\Mozilla\Firefox”+下图所示的路径拼接：(图示为一部分)</p>
+<p><img src="D:\virus\20-5-14\分析报告20-5-14.assets\image-20200515180302171.png" alt="image-20200515180302171"></p>
+<p>然后利用nss.dll对Firefox配置进行一些列操作</p>
+<p>第二个call：</p>
+<p><img src="D:\virus\20-5-14\分析报告20-5-14.assets\image-20200515154911880.png" alt="image-20200515154911880"></p>
+<p>用于在本地”\ AppData\ Roaming\ “创建一个新目录，并向其中存放样本副本，同时为目录和副本都设置隐藏属性，路径如下：</p>
+<p><img src="D:\virus\20-5-14\分析报告20-5-14.assets\image-20200515152420753.png" alt="image-20200515152420753"></p>
+<p>第三个call：</p>
+<p>构造Socket套接字，建立TCP远程通信，上传获取到的所有本机信息</p>
+<p>获取信息：</p>
+<p><img src="D:\virus\20-5-14\分析报告20-5-14.assets\image-20200515172032119.png" alt="image-20200515172032119"></p>
+<p>建立连接：</p>
+<p><img src="D:\virus\20-5-14\分析报告20-5-14.assets\image-20200515172130345.png" alt="image-20200515172130345"></p>
+<p><img src="D:\virus\20-5-14\分析报告20-5-14.assets\image-20200515170114379.png" alt="image-20200515170114379"></p>
+<p>C2信息如下：</p>
+<p>URL：“<a target="_blank" rel="noopener" href="http://broken6.cf/L8/fre.pnp&quot;">http://broken6.cf/L8/fre.pnp&quot;</a>   </p>
+<p>IP：104.27.145.219：80</p>
+<p>会发送post请求，传递当前计算机信息</p>
+<p><img src="D:\virus\20-5-14\分析报告20-5-14.assets\image-20200515171121558.png" alt="image-20200515171121558"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:hskull@foxmail.com">hskull</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2021/01/01/%E6%81%B6%E6%84%8F%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%901/">http://example.com/2021/01/01/恶意样本分析1/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="http://hskull.cn/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">少卿の博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/C/">C#</a><a class="post-meta__tags" href="/tags/NET/">.NET</a><a class="post-meta__tags" href="/tags/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/">样本分析</a><a class="post-meta__tags" href="/tags/%E4%BA%8C%E8%BF%9B%E5%88%B6/">二进制</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/hskull00/Images/博客相关/20210101181703.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i> 打赏<div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/wechat.jpg" target="_blank"><img class="post-qr-code-img" src="/img/wechat.jpg" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="/img/alipay.jpg" target="_blank"><img class="post-qr-code-img" src="/img/alipay.jpg" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2020/12/01/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2/"><img class="next-cover" src="https://cdn.jsdelivr.net/gh/hskull00/Images/博客相关/20201231211752.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">一篇文章教会你搭建自己的博客</div></div></a></div></nav></div><div class="aside_content" id="aside_content"><div class="card-widget card-info"><div class="card-content"><div class="card-info-avatar is-center"><img class="avatar-img" src="https://cdn.jsdelivr.net/gh/hskull00/Images/博客相关/20201231224217.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-info__name">hskull</div><div class="author-info__description">格物致知 诚意正心 修身齐家</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">2</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">6</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/hskull00"><i class="fab fa-github"></i><span>Follow Me</span></a></div></div><div class="card-widget card-announcement"><div class="card-content"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客，我将带你走进网络安全的世界</div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="card-content"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">详细分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%B7%E6%9C%AC%E8%87%AA%E8%BA%AB%E5%8A%9F%E8%83%BD%E5%88%86%E6%9E%90"><span class="toc-number">2.1.</span> <span class="toc-text">样本自身功能分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#dump%E5%88%B0%E7%9A%84dll%E5%88%86%E6%9E%90"><span class="toc-number">2.2.</span> <span class="toc-text">dump到的dll分析</span></a></li></ol></li></ol></div></div></div><div class="card-widget card-recent-post"><div class="card-content"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2021/01/01/%E6%81%B6%E6%84%8F%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%901/" title="如何分析各种类型的恶意样本之--C#恶意样本分析技巧"><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/博客相关/20210101181703.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="如何分析各种类型的恶意样本之--C#恶意样本分析技巧"/></a><div class="content"><a class="title" href="/2021/01/01/%E6%81%B6%E6%84%8F%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%901/" title="如何分析各种类型的恶意样本之--C#恶意样本分析技巧">如何分析各种类型的恶意样本之--C#恶意样本分析技巧</a><time datetime="2020-12-31T16:00:00.000Z" title="发表于 2021-01-01 00:00:00">2021-01-01</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2020/12/01/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2/" title="一篇文章教会你搭建自己的博客"><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/博客相关/20201231211752.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="一篇文章教会你搭建自己的博客"/></a><div class="content"><a class="title" href="/2020/12/01/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2/" title="一篇文章教会你搭建自己的博客">一篇文章教会你搭建自己的博客</a><time datetime="2020-11-30T16:00:00.000Z" title="发表于 2020-12-01 00:00:00">2020-12-01</time></div></div></div></div></div></div></div></main><footer id="footer" style="background-image: url(https://cdn.jsdelivr.net/gh/hskull00/Images/博客相关/20210101181703.jpg)"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2021 By hskull</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></div></body></html>
