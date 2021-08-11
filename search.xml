@@ -3,7 +3,7 @@
   <entry>
     <title>pwnable.kr系列刷题之02-collision</title>
     <url>/2021/08/11/pwnable.kr%E7%B3%BB%E5%88%9702-collision/</url>
-    <content><![CDATA[<p> 第二题，是一道关于MD5 hash碰撞的题目，使用ssh链接，题目详情如下:</p>
+    <content><![CDATA[<p> 第二题，是一道关于MD5 hash碰撞的 题目，使用ssh链接，题目详情如下:</p>
 <p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/pwn/pwnable20210806170420.png"></p>
 <p>​    先链接上看看，密码guest：</p>
 <p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/pwn/pwnable20210806171452.png"></p>
