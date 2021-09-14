@@ -2,14 +2,14 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://example.com/2021/09/12/pwnable.kr%E7%B3%BB%E5%88%9710-shellshock/</loc>
+    <loc>http://example.com/2021/09/12/pwnable/pwnable.kr%E7%B3%BB%E5%88%9710-shellshock/</loc>
     
     <lastmod>2021-09-14</lastmod>
     
   </url>
   
   <url>
-    <loc>http://example.com/2021/09/14/shellsock%E6%BC%8F%E6%B4%9E(CVE-2014-6271)/</loc>
+    <loc>http://example.com/2021/09/14/%E6%BC%8F%E6%B4%9E/shellsock%E6%BC%8F%E6%B4%9E(CVE-2014-6271)/</loc>
     
     <lastmod>2021-09-14</lastmod>
     
@@ -51,63 +51,63 @@
   </url>
   
   <url>
-    <loc>http://example.com/2021/09/08/pwnable.kr%E7%B3%BB%E5%88%9709-mistake/</loc>
+    <loc>http://example.com/2021/09/08/pwnable/pwnable.kr%E7%B3%BB%E5%88%9709-mistake/</loc>
     
     <lastmod>2021-09-12</lastmod>
     
   </url>
   
   <url>
-    <loc>http://example.com/2021/09/07/pwnable.kr%E7%B3%BB%E5%88%9708-leg/</loc>
+    <loc>http://example.com/2021/09/07/pwnable/pwnable.kr%E7%B3%BB%E5%88%9708-leg/</loc>
     
     <lastmod>2021-09-12</lastmod>
     
   </url>
   
   <url>
-    <loc>http://example.com/2021/08/28/pwnable.kr%E7%B3%BB%E5%88%9707-input/</loc>
+    <loc>http://example.com/2021/08/28/pwnable/pwnable.kr%E7%B3%BB%E5%88%9707-input/</loc>
     
     <lastmod>2021-09-12</lastmod>
     
   </url>
   
   <url>
-    <loc>http://example.com/2021/08/16/pwnable.kr%E7%B3%BB%E5%88%9706-random/</loc>
+    <loc>http://example.com/2021/08/16/pwnable/pwnable.kr%E7%B3%BB%E5%88%9706-random/</loc>
     
     <lastmod>2021-09-12</lastmod>
     
   </url>
   
   <url>
-    <loc>http://example.com/2021/08/15/pwnable.kr%E7%B3%BB%E5%88%9705-passcode/</loc>
+    <loc>http://example.com/2021/08/15/pwnable/pwnable.kr%E7%B3%BB%E5%88%9705-passcode/</loc>
     
     <lastmod>2021-09-12</lastmod>
     
   </url>
   
   <url>
-    <loc>http://example.com/2021/08/14/pwnable.kr%E7%B3%BB%E5%88%9704-flag/</loc>
+    <loc>http://example.com/2021/08/14/pwnable/pwnable.kr%E7%B3%BB%E5%88%9704-flag/</loc>
     
     <lastmod>2021-09-12</lastmod>
     
   </url>
   
   <url>
-    <loc>http://example.com/2021/08/13/pwnable.kr%E7%B3%BB%E5%88%9703-bof/</loc>
+    <loc>http://example.com/2021/08/13/pwnable/pwnable.kr%E7%B3%BB%E5%88%9703-bof/</loc>
     
     <lastmod>2021-09-12</lastmod>
     
   </url>
   
   <url>
-    <loc>http://example.com/2021/08/12/pwnable.kr%E7%B3%BB%E5%88%9702-collision/</loc>
+    <loc>http://example.com/2021/08/12/pwnable/pwnable.kr%E7%B3%BB%E5%88%9702-collision/</loc>
     
     <lastmod>2021-09-12</lastmod>
     
   </url>
   
   <url>
-    <loc>http://example.com/2021/08/11/pwnable.kr%E7%B3%BB%E5%88%9701-fd/</loc>
+    <loc>http://example.com/2021/08/11/pwnable/pwnable.kr%E7%B3%BB%E5%88%9701-fd/</loc>
     
     <lastmod>2021-09-12</lastmod>
     
