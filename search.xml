@@ -1479,7 +1479,7 @@
   <entry>
     <title>shellsock漏洞(CVE-2014-6271)分析</title>
     <url>/2021/09/14/%E6%BC%8F%E6%B4%9E/shellsock%E6%BC%8F%E6%B4%9E(CVE-2014-6271)%20/</url>
-    <content><![CDATA[<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>​    在刷pwnable.kr题目shellshock时，碰到了这个bash的老漏洞，这里我也对其分析一下，做个记录。</p>
+    <content><![CDATA[<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>​    在刷pwnable.kr的题目shellshock时，碰到了这个bash的老漏洞，这里我也对其分析一下，做个记录。</p>
 <p>​    shellshock破壳漏洞，是一个高危的漏。漏洞原理简单来说就是子进程bash在获得父bash进程传递的shell环境变量时，对函数定义的变量解析除了问题，导致了任意代码被执行。</p>
 <p>​    该漏洞可以分为本地利用和远程利用两种，其远程利用危害性极强，攻击者可以利用该漏洞精心伪造数据，通过网络请求到一台利用bash脚本来处理用户请求的网站上，来直接或间接的触发一个bash脚本，这样就可以远程执行而已代码了。</p>
 <p>​    经测试，从bash1.14 到4.3都存在这样的漏洞。   </p>
