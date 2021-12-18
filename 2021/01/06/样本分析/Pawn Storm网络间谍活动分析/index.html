@@ -1,0 +1,244 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pawn Storm网络间谍活动分析 | hskull</title><meta name="keywords" content="‘Pawn Storm,间谍活动,样本,分析,钓鱼邮件'"><meta name="author" content="hskull,hskull00@outlook.com"><meta name="copyright" content="hskull"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><meta name="description" content="概述冰风暴“Pawn Storm“是一个长期进行的间谍活动，自2004年开始活跃于网络上，它的成员有APT28、Sofacy、FancyBear、Sednit、Strontium等。其主要目标包括国防工业、军队、政府组织和媒体，从历年攻击情况来看，针对乌克兰、美国、俄罗斯的攻击占了该间谍活动很大的一部分。 该组织攻击的主要手法是利用欺骗性的钓鱼邮件以及定向的鱼叉、水坑攻击之类的方式，进行远控RAT">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Pawn Storm网络间谍活动分析">
+<meta property="og:url" content="http://example.com/2021/01/06/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/Pawn%20Storm%E7%BD%91%E7%BB%9C%E9%97%B4%E8%B0%8D%E6%B4%BB%E5%8A%A8%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="hskull">
+<meta property="og:description" content="概述冰风暴“Pawn Storm“是一个长期进行的间谍活动，自2004年开始活跃于网络上，它的成员有APT28、Sofacy、FancyBear、Sednit、Strontium等。其主要目标包括国防工业、军队、政府组织和媒体，从历年攻击情况来看，针对乌克兰、美国、俄罗斯的攻击占了该间谍活动很大的一部分。 该组织攻击的主要手法是利用欺骗性的钓鱼邮件以及定向的鱼叉、水坑攻击之类的方式，进行远控RAT">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/博客相关/间谍活动.jpg">
+<meta property="article:published_time" content="2021-01-05T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-12-18T17:15:05.998Z">
+<meta property="article:author" content="hskull">
+<meta property="article:tag" content="样本分析">
+<meta property="article:tag" content="二进制">
+<meta property="article:tag" content="Pawn Storm">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/hskull00/Images/博客相关/间谍活动.jpg"><link rel="shortcut icon" href="/img/hacker2.png"><link rel="canonical" href="http://example.com/2021/01/06/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/Pawn%20Storm%E7%BD%91%E7%BB%9C%E9%97%B4%E8%B0%8D%E6%B4%BB%E5%8A%A8%E5%88%86%E6%9E%90/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin=""/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web&amp;display=swap"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: true,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: hskull","link":"链接: ","source":"来源: hskull","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  ClickShowText: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: true
+};
+
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+    const now = new Date()
+    const expiryDay = ttl * 86400000
+    const item = {
+      value: value,
+      expiry: now.getTime() + expiryDay,
+    }
+    localStorage.setItem(key, JSON.stringify(item))
+  },
+
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
+
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
+
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}
+
+// https://stackoverflow.com/questions/16839698/jquery-getscript-alternative-in-native-javascript
+const getScript = url => new Promise((resolve, reject) => {
+  const script = document.createElement('script')
+  script.src = url
+  script.async = true
+  script.onerror = reject
+  script.onload = script.onreadystatechange = function() {
+    const loadState = this.readyState
+    if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+    script.onload = script.onreadystatechange = null
+    resolve()
+  }
+  document.head.appendChild(script)
+})</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-12-19 01:15:05'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(function () {  window.activateDarkMode = function () {
+    document.documentElement.setAttribute('data-theme', 'dark')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+    }
+  }
+  window.activateLightMode = function () {
+    document.documentElement.setAttribute('data-theme', 'light')
+   if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+    }
+  }
+  const autoChangeMode = 'false'
+  const t = saveToLocal.get('theme')
+  if (autoChangeMode === '1') {
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+    const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+    const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+    if (t === undefined) {
+      if (isLightMode) activateLightMode()
+      else if (isDarkMode) activateDarkMode()
+      else if (isNotSpecified || hasNoSupport) {
+        const now = new Date()
+        const hour = now.getHours()
+        const isNight = hour <= 6 || hour >= 18
+        isNight ? activateDarkMode() : activateLightMode()
+      }
+      window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+        if (saveToLocal.get('theme') === undefined) {
+          e.matches ? activateDarkMode() : activateLightMode()
+        }
+      })
+    } else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else if (autoChangeMode === '2') {
+    const now = new Date()
+    const hour = now.getHours()
+    const isNight = hour <= 6 || hour >= 18
+    if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+    else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else {
+    if (t === 'dark') activateDarkMode()
+    else if (t === 'light') activateLightMode()
+  }const asideStatus = saveToLocal.get('aside-status')
+if (asideStatus !== undefined) {
+   if (asideStatus === 'hide') {
+     document.documentElement.classList.add('hide-aside')
+   } else {
+     document.documentElement.classList.remove('hide-aside')
+   }
+}})()</script><meta name="generator" content="Hexo 5.2.0"><link rel="alternate" href="/atom.xml" title="hskull" type="application/atom+xml">
+</head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" src="https://cdn.jsdelivr.net/gh/hskull00/Images/博客相关/20201231224217.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">24</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">12</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 归类</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 资料</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 图库</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 技术博客</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(https://cdn.jsdelivr.net/gh/hskull00/Images/博客相关/间谍活动.jpg)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">hskull</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 归类</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 资料</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 图库</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 技术博客</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Pawn Storm网络间谍活动分析</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-01-05T16:00:00.000Z" title="发表于 2021-01-06 00:00:00">2021-01-06</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-12-18T17:15:05.998Z" title="更新于 2021-12-19 01:15:05">2021-12-19</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/">样本分析</a></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">1.4k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>4分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>冰风暴“Pawn Storm“是一个长期进行的间谍活动，自2004年开始活跃于网络上，它的成员有APT28、Sofacy、Fancy<br>Bear、Sednit、Strontium等。其主要目标包括国防工业、军队、政府组织和媒体，从历年攻击情况来看，针对乌克兰、美国、俄罗斯的攻击占了该间谍活动很大的一部分。</p>
+<p>该组织攻击的主要手法是利用欺骗性的钓鱼邮件以及定向的鱼叉、水坑攻击之类的方式，进行远控RAT的投递，进而实现窃密、远控等操作。</p>
+<p>据趋势科技描述，中东各种受感染的电子邮件帐户的滥用始于2019年5月，并一直持续到今天。自2020年8月以来，他们不再使用这些电子邮件地址仅发送鱼叉式网络钓鱼电子邮件，而是将其用作与IMAP<br>RAT中受损系统进行通信的一种方式。在20年12月上旬，检测到了该组织的攻击活动，其利用VPN服务链接到受感染的云服务器，然后使用云服务器连接到商业电子邮件服务商。之后该组织登陆了Oman(阿曼，阿曼苏丹国，阿拉伯半岛国家)的一家养鸡场的电子邮件账户，并向全球的重点目标发送钓鱼邮件。这次攻击中用到了Google Driver来进行RAT的存储与分发，具体细节如下。</p>
+<h1 id="详细分析"><a href="#详细分析" class="headerlink" title="详细分析"></a>详细分析</h1><h2 id="00-钓鱼邮件"><a href="#00-钓鱼邮件" class="headerlink" title="00 钓鱼邮件"></a>00 钓鱼邮件</h2><p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E5%8D%9A%E5%AE%A2%E7%9B%B8%E5%85%B3/20211219010241.png"></p>
+<p>捕获到的鱼叉式电子邮件信息大致如上图所示，邮件附件几乎都为相同的rar文件，其内部包含了自解压文件info.exe文件。Info.exe运行后释放并加载两个文件：decrypt.exe和gdrive.exe:</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E5%8D%9A%E5%AE%A2%E7%9B%B8%E5%85%B3/20211219010300.png"></p>
+<p>获取到的样本的信息如下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">名称</th>
+<th align="center">MD5</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">decrypt.exe</td>
+<td align="center">74b83a7ff32d0a4926798431bed12ab2</td>
+</tr>
+<tr>
+<td align="center">gdrive.exe</td>
+<td align="center">934dad8c091622cd6fe9907104bc73ab</td>
+</tr>
+</tbody></table>
+<p>info.exe运行后在%Apppdata%\ Local\Temp\RarSFX[number]\下释放文件，并启动decrypt.exe，decrypt.exe启动后显示如下界面：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E5%8D%9A%E5%AE%A2%E7%9B%B8%E5%85%B3/20211219010506.png"></p>
+<h2 id="01-诱饵文件decrypt-exe"><a href="#01-诱饵文件decrypt-exe" class="headerlink" title="01 诱饵文件decrypt.exe"></a>01 诱饵文件decrypt.exe</h2><p>该程序是一个.Net诱饵程序，代码结构如下所示，只有一个消息窗口进行显示：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E5%8D%9A%E5%AE%A2%E7%9B%B8%E5%85%B3/20211219010555.png"></p>
+<p>程序需要用户输入密码，但是其并没有正确密码，内部逻辑是只要点击OK且用户键入了密码，就弹出失败信息：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E5%8D%9A%E5%AE%A2%E7%9B%B8%E5%85%B3/20211219010610.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E5%8D%9A%E5%AE%A2%E7%9B%B8%E5%85%B3/20211219010619.png"></p>
+<p>至此在消磨完用户耐心后，用户自然会关闭窗口，此时info.exe再对gdrive.exe进行调用，进行后续恶意操作。该操作不仅用于迷惑用户，而且对于各大分析沙箱的分析行为也进行了干扰，防止其自动分析出恶意行为。</p>
+<h2 id="02-恶意程序gdrive-exe"><a href="#02-恶意程序gdrive-exe" class="headerlink" title="02 恶意程序gdrive.exe"></a>02 恶意程序gdrive.exe</h2><p>同样为.Net程序，主要用来和Google Drive(云端存储空间)进行链接，来完成相应的恶意RAT下发、回传等操作。</p>
+<ul>
+<li>首先会创建新的post请求，来更新在Google OAuth上对应的token，该更新函数Progra.refresh()如下：</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E5%8D%9A%E5%AE%A2%E7%9B%B8%E5%85%B3/20211219010806.png"></p>
+<p>对应的用于读写攻击者的Google云端存储空间帐户的客户端密钥和令牌已被硬编码到程序中。</p>
+<ul>
+<li>调用cmd.exe，以cmd命令的方式创建自身副本到开始菜单启动项，AppData%\Roaming\Microsoft\Windows\Start<br>Menu\Programs\Startup\gdrive.exe 来完成持久化操作：</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E5%8D%9A%E5%AE%A2%E7%9B%B8%E5%85%B3/20211219010913.png"></p>
+<p>恶意软件所使用到的每个cmd命令都会被记录到对应账户的Google 云盘中，且对其命名的格式为：{utcnow} <em>report</em> {受害者的comp}：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E5%8D%9A%E5%AE%A2%E7%9B%B8%E5%85%B3/20211219010944.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E5%8D%9A%E5%AE%A2%E7%9B%B8%E5%85%B3/20211219010952.png"></p>
+<p>攻击者会通过Goole Driver上记录的消息，来确认被攻击者的信息，以及下发后续执行的操作。</p>
+<ul>
+<li>该恶意程序每隔20分钟对Google云盘中的内容进行查找，当匹配到对应文件名格式：cmd_ {受害者的ID}的文件时，会对其进行下载并执行，执行过的命令同样更新到Google云盘中。这里采用Google云盘作为恶意C2，增加了恶意程序的隐蔽性。</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E5%8D%9A%E5%AE%A2%E7%9B%B8%E5%85%B3/20211219011023.png"></p>
+<p>另外当下载对应文件成功后，会立即进行请求，删除Google云盘中对应的文件以防止被溯源分析：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E5%8D%9A%E5%AE%A2%E7%9B%B8%E5%85%B3/20211219011039.png"></p>
+<h2 id="03-检测到的后续分发"><a href="#03-检测到的后续分发" class="headerlink" title="03 检测到的后续分发"></a>03 检测到的后续分发</h2><p>此次利用Google云盘进行远控的手法，后续操作完全由攻击者进行动态配置，针对性极强。下发的后续攻击不仅仅只是文件，还包括了cmd、powershell命令等。比如通过下发PowerShell命令来执行数据的窃取：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E5%8D%9A%E5%AE%A2%E7%9B%B8%E5%85%B3/20211219011123.png" alt="img"></p>
+<p>要知道，只要可以下发命令和文件，那么理论上就可以做到一切的恶意操作，其危害性不言而喻。</p>
+<p>另外，还检测到其对键盘记录的相关恶意程序gdmonitor.exe:</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E5%8D%9A%E5%AE%A2%E7%9B%B8%E5%85%B3/20211219011147.png"></p>
+<h2 id="04-利用IMAP进行RAT分发"><a href="#04-利用IMAP进行RAT分发" class="headerlink" title="04 利用IMAP进行RAT分发"></a>04 利用IMAP进行RAT分发</h2><p>在分析时发现， 在攻击者对恶意软件的该进中，后续利用到了和Google Driver不同的RAT分发方式，即利用IMAP邮件协议进行恶意RAT的获取。</p>
+<p>新的恶意程序被命名为email.exe，其整体代码结构和执行流程与gdrive.exe类似：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E5%8D%9A%E5%AE%A2%E7%9B%B8%E5%85%B3/20211219011327.png"></p>
+<p>每隔1分钟对邮箱<a href="mailto:project@afcoop.ae">project@afcoop.ae</a>内容进行检索，获取Drafts或INBOX.Drafts中的内容：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E5%8D%9A%E5%AE%A2%E7%9B%B8%E5%85%B3/20211219011348.png"></p>
+<p>同样也会将执行过的命令进行回传以作记录，通信数据经过了RC4加密：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E5%8D%9A%E5%AE%A2%E7%9B%B8%E5%85%B3/20211219011412.png"></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>APT组织的攻击手法越来越巧妙，向本次Pawn Storm利用到的Google Drive和IMAP作为C2的技巧，是很难通过IOC来进行标识的。这就需要在流量上进行更加精准的检测，来达到防御的目的。</p>
+<h1 id="IOCs"><a href="#IOCs" class="headerlink" title="IOCs"></a>IOCs</h1><p><strong>MD5</strong> ：</p>
+<p>280c8557eb45d5fee4a4663f5db5dcaf</p>
+<p>934dad8c091622cd6fe9907104bc73ab</p>
+<p>74b83a7ff32d0a4926798431bed12ab2</p>
+<p>b711ade716c30f83d7631ac00bf754dd</p>
+<p>a5f3883d1f3d0072d316df9411694fb2</p>
+<p><strong>email</strong> <strong>：</strong></p>
+<p><a href="mailto:project@afcoop.ae">project@afcoop.ae</a>(alsaedi4855)</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:hskull00@outlook.com">hskull</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2021/01/06/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/Pawn%20Storm%E7%BD%91%E7%BB%9C%E9%97%B4%E8%B0%8D%E6%B4%BB%E5%8A%A8%E5%88%86%E6%9E%90/">http://example.com/2021/01/06/样本分析/Pawn Storm网络间谍活动分析/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="http://hskull.cn/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">hskull</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/">样本分析</a><a class="post-meta__tags" href="/tags/%E4%BA%8C%E8%BF%9B%E5%88%B6/">二进制</a><a class="post-meta__tags" href="/tags/Pawn-Storm/">Pawn Storm</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/hskull00/Images/博客相关/间谍活动.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i> 打赏<div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/wechat.jpg" target="_blank"><img class="post-qr-code-img" src="/img/wechat.jpg" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="/img/alipay.jpg" target="_blank"><img class="post-qr-code-img" src="/img/alipay.jpg" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/03/06/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E8%B0%88%E4%B8%80%E8%B0%88%E9%A9%B1%E5%8A%A8%E4%BA%BA%E7%94%9F%E6%9C%A8%E9%A9%AC/"><img class="prev-cover" src="https://cdn.jsdelivr.net/gh/hskull00/Images/样本分析/驱动人生v2-655f91de80d1ad2249fcd7579f573c21_ipico.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">谈一谈驱动人生木马</div></div></a></div><div class="next-post pull-right"><a href="/2021/01/01/%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90/%E6%81%B6%E6%84%8F%E6%A0%B7%E6%9C%AC%E5%88%86%E6%9E%90-01/"><img class="next-cover" src="https://cdn.jsdelivr.net/gh/hskull00/Images/博客相关/20210101181703.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">如何分析各种类型的恶意样本之--C#恶意样本分析技巧</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2021/01/01/样本分析/恶意样本分析-01/" title="如何分析各种类型的恶意样本之--C#恶意样本分析技巧"><img class="cover" src="https://cdn.jsdelivr.net/gh/hskull00/Images/博客相关/20210101181703.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-01-01</div><div class="title">如何分析各种类型的恶意样本之--C#恶意样本分析技巧</div></div></a></div><div><a href="/2020/12/25/样本分析/赛博朋克2077相关勒索攻击/" title="利用赛博朋克2077热点信息进行的勒索攻击"><img class="cover" src="https://cdn.jsdelivr.net/gh/hskull00/Images/博客相关/赛博朋克.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-12-25</div><div class="title">利用赛博朋克2077热点信息进行的勒索攻击</div></div></a></div><div><a href="/2020/10/20/样本分析/奇幻熊组织攻击活动分析/" title="奇幻熊组织攻击活动分析"><img class="cover" src="https://cdn.jsdelivr.net/gh/hskull00/Images/博客相关/奇幻熊.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-10-20</div><div class="title">奇幻熊组织攻击活动分析</div></div></a></div><div><a href="/2021/03/06/样本分析/谈一谈驱动人生木马/" title="谈一谈驱动人生木马"><img class="cover" src="https://cdn.jsdelivr.net/gh/hskull00/Images/样本分析/驱动人生v2-655f91de80d1ad2249fcd7579f573c21_ipico.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-03-06</div><div class="title">谈一谈驱动人生木马</div></div></a></div></div></div></div><div class="aside_content" id="aside_content"><div class="card-widget card-info"><div class="card-content"><div class="card-info-avatar is-center"><img class="avatar-img" src="https://cdn.jsdelivr.net/gh/hskull00/Images/博客相关/20201231224217.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-info__name">hskull</div><div class="author-info__description">格物致知 诚意正心 修身齐家</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">24</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">12</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/hskull00"><i class="fab fa-github"></i><span>Follow Me</span></a></div></div><div class="card-widget card-announcement"><div class="card-content"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客，我将带你走进网络安全的世界</div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="card-content"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%AF%A6%E7%BB%86%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">详细分析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#00-%E9%92%93%E9%B1%BC%E9%82%AE%E4%BB%B6"><span class="toc-number">2.1.</span> <span class="toc-text">00 钓鱼邮件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#01-%E8%AF%B1%E9%A5%B5%E6%96%87%E4%BB%B6decrypt-exe"><span class="toc-number">2.2.</span> <span class="toc-text">01 诱饵文件decrypt.exe</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#02-%E6%81%B6%E6%84%8F%E7%A8%8B%E5%BA%8Fgdrive-exe"><span class="toc-number">2.3.</span> <span class="toc-text">02 恶意程序gdrive.exe</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#03-%E6%A3%80%E6%B5%8B%E5%88%B0%E7%9A%84%E5%90%8E%E7%BB%AD%E5%88%86%E5%8F%91"><span class="toc-number">2.4.</span> <span class="toc-text">03 检测到的后续分发</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#04-%E5%88%A9%E7%94%A8IMAP%E8%BF%9B%E8%A1%8CRAT%E5%88%86%E5%8F%91"><span class="toc-number">2.5.</span> <span class="toc-text">04 利用IMAP进行RAT分发</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">3.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#IOCs"><span class="toc-number">4.</span> <span class="toc-text">IOCs</span></a></li></ol></div></div></div><div class="card-widget card-recent-post"><div class="card-content"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2021/10/14/%E6%BC%8F%E6%B4%9E/libzmq%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E(CVE-2019-6250)/" title="libzmq远程代码执行漏洞(CVE-2019-6250)分析"><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/fuzzing/fuzzzeromq-13-728.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="libzmq远程代码执行漏洞(CVE-2019-6250)分析"/></a><div class="content"><a class="title" href="/2021/10/14/%E6%BC%8F%E6%B4%9E/libzmq%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E(CVE-2019-6250)/" title="libzmq远程代码执行漏洞(CVE-2019-6250)分析">libzmq远程代码执行漏洞(CVE-2019-6250)分析</a><time datetime="2021-10-13T16:00:00.000Z" title="发表于 2021-10-14 00:00:00">2021-10-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/09/24/pwnable/pwnable.kr%E7%B3%BB%E5%88%9715-cmd2/" title="pwnable.kr系列刷题之15-cmd2"><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/pwn/pwnablepwn3.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="pwnable.kr系列刷题之15-cmd2"/></a><div class="content"><a class="title" href="/2021/09/24/pwnable/pwnable.kr%E7%B3%BB%E5%88%9715-cmd2/" title="pwnable.kr系列刷题之15-cmd2">pwnable.kr系列刷题之15-cmd2</a><time datetime="2021-09-23T16:00:00.000Z" title="发表于 2021-09-24 00:00:00">2021-09-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/09/23/pwnable/pwnable.kr%E7%B3%BB%E5%88%9714-cmd1/" title="pwnable.kr系列刷题之14-cmd1"><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/pwn/pwnablepwn3.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="pwnable.kr系列刷题之14-cmd1"/></a><div class="content"><a class="title" href="/2021/09/23/pwnable/pwnable.kr%E7%B3%BB%E5%88%9714-cmd1/" title="pwnable.kr系列刷题之14-cmd1">pwnable.kr系列刷题之14-cmd1</a><time datetime="2021-09-22T16:00:00.000Z" title="发表于 2021-09-23 00:00:00">2021-09-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/09/18/pwnable/pwnable.kr%E7%B3%BB%E5%88%9713-lotto/" title="pwnable.kr系列刷题之13-lotto"><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/pwn/pwnablepwn3.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="pwnable.kr系列刷题之13-lotto"/></a><div class="content"><a class="title" href="/2021/09/18/pwnable/pwnable.kr%E7%B3%BB%E5%88%9713-lotto/" title="pwnable.kr系列刷题之13-lotto">pwnable.kr系列刷题之13-lotto</a><time datetime="2021-09-17T16:00:00.000Z" title="发表于 2021-09-18 00:00:00">2021-09-18</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/09/17/pwnable/pwnable.kr%E7%B3%BB%E5%88%9712-blackjack/" title="pwnable.kr系列刷题之12-blackjack"><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/pwn/pwnablepwn3.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="pwnable.kr系列刷题之12-blackjack"/></a><div class="content"><a class="title" href="/2021/09/17/pwnable/pwnable.kr%E7%B3%BB%E5%88%9712-blackjack/" title="pwnable.kr系列刷题之12-blackjack">pwnable.kr系列刷题之12-blackjack</a><time datetime="2021-09-16T16:00:00.000Z" title="发表于 2021-09-17 00:00:00">2021-09-17</time></div></div></div></div></div></div></div></main><footer id="footer" style="background-image: url(https://cdn.jsdelivr.net/gh/hskull00/Images/博客相关/间谍活动.jpg)"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2021 By hskull</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/click-heart.min.js" async="async" mobile="true"></script></div></body></html>
