@@ -1674,22 +1674,17 @@
   <entry>
     <title>libzmq远程代码执行漏洞(CVE-2019-6250)分析</title>
     <url>/2021/10/14/%E6%BC%8F%E6%B4%9E/libzmq%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E(CVE-2019-6250)/</url>
-    <content><![CDATA[<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>ZMQ(Zero Message Queue)是一种迹于消息队列得多线程网络库，C++编写，可以使得Socket编程更加简单高效。</p>
+    <content><![CDATA[<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>ZMQ(Zero Message Queue)是一种基于消息队列得多线程网络库，C++编写，可以使得Socket编程更加简单高效。</p>
 <p>该编号为CVE-2019-6250的远程执行漏洞，主要出现在ZMQ的核心引擎libzmq(4.2.x以及4.3.1之后的4.3.x)定义的ZMTP v2.0协议中。</p>
-<p>该漏洞NVD评分向量为CVSS:3.0/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H，最终得分为8.8分。</p>
 <h1 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h1><h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><p>先搭建个测试poc和后面调试漏洞的环境，这里用到了：</p>
 <ul>
-<li><p>Ubuntu 20.4.2</p>
-</li>
-<li><p>libzmq  4.2.x以及4.3.1之后的4.3.x这几个版本都可以触发漏洞，下载后切换版本安装即可测试 <a href="https://github.com/zeromq/libzmq">项目地址</a></p>
-</li>
-<li><p>cppzmq   用来调用libzmq执行代码，测试poc  <a href="https://github.com/zeromq/cppzmq">项目地址</a></p>
-</li>
-<li><p>poc地址<a href="https://github.com/zeromq/libzmq/issues/3351">在这</a></p>
-</li>
+<li>Ubuntu 20.4.2</li>
+<li>libzmq  4.2.x以及4.3.1之后的4.3.x这几个版本都可以触发漏洞，下载后切换版本安装即可测试 <a href="https://github.com/zeromq/libzmq">项目地址</a></li>
+<li>cppzmq   用来调用libzmq执行代码，测试poc  <a href="https://github.com/zeromq/cppzmq">项目地址</a></li>
+<li>poc地址<a href="https://github.com/zeromq/libzmq/issues/3351">在这</a></li>
 </ul>
 <h2 id="poc测试"><a href="#poc测试" class="headerlink" title="poc测试"></a>poc测试</h2><p>将libzmp和cppzmq都安装好，其中libzmp是configure来安装的，cppzmq是cmake来安装的，安装过程简单。</p>
-<p>都安装完后，cppzmq下有个demo目录，下面也<code>cmake ./</code>编译，完成后即可在demo这里堆main.cpp修改来进行漏洞测试，main.cpp代码如下：</p>
+<p>都安装完后，cppzmq下有个demo目录，下面也 <code>cmake ./</code>编译，完成后即可在demo这里堆main.cpp修改来进行漏洞测试，main.cpp代码如下：</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;zmq.hpp&gt;</span></span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    zmq::<span class="keyword">context_t</span> contex;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>主要是引入了zmq.hpp头文件，这个决定了poc是否能测试成功，输出个hello world测试一下，成功说明环境配置都ok了：</p>
@@ -1699,7 +1694,7 @@
 
 <p>修改main.cpp内容，然后编译执行，成功复现：</p>
 <p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/linux%E6%BC%8F%E6%B4%9E/cve-1019-625020211104162815.png"></p>
-<h1 id="漏洞成因"><a href="#漏洞成因" class="headerlink" title="漏洞成因"></a>漏洞成因</h1><p>通过对cve作者提交的说明来看,漏洞主要是在<code>src/v2_decoder.cpp zmq::v2_decoder_t::size_ready()</code>中<code>read_pos_ + msg_size_</code>表达式 未做过滤导致一个整型溢出漏洞，使得可以通过设置一个较大的msg_zize来让判断条件恒不成立，造成第二次读取向小缓冲区写入大数据进而溢出，具体溢出位置如下：</p>
+<h1 id="漏洞成因"><a href="#漏洞成因" class="headerlink" title="漏洞成因"></a>漏洞成因</h1><p>通过对cve作者提交的说明来看,漏洞主要是在 <code>src/v2_decoder.cpp zmq::v2_decoder_t::size_ready()</code>中 <code>read_pos_ + msg_size_</code>表达式 未做过滤导致一个整型溢出漏洞，使得可以通过设置一个较大的msg_zize来让判断条件恒不成立，造成第二次读取向小缓冲区写入大数据进而溢出，具体溢出位置如下：</p>
 <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (unlikely (!_zero_copy</span><br><span class="line">              || ((<span class="keyword">unsigned</span> <span class="keyword">char</span> *) read_pos_ + msg_size_  <span class="comment">//这里发生整数溢出</span></span><br><span class="line">                  &gt; (allocator.data () + allocator.size ())))) &#123;</span><br><span class="line">    rc = _in_progress.init_size (<span class="keyword">static_cast</span>&lt;<span class="keyword">size_t</span>&gt; (msg_size_));</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;    <span class="comment">//溢出后进入该流程</span></span><br><span class="line">    rc =</span><br><span class="line">      _in_progress.init (<span class="keyword">const_cast</span>&lt;<span class="keyword">unsigned</span> <span class="keyword">char</span> *&gt; (read_pos_),</span><br><span class="line">                         <span class="keyword">static_cast</span>&lt;<span class="keyword">size_t</span>&gt; (msg_size_),   </span><br><span class="line">             shared_message_memory_allocator::call_dec_ref,</span><br><span class="line">                         allocator.buffer (), allocator.provide_content ());</span><br><span class="line">    <span class="keyword">if</span> (_in_progress.is_zcmsg ()) &#123;</span><br><span class="line">        allocator.advance_content ();</span><br><span class="line">        allocator.inc_ref ();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h2 id="整个通信流程"><a href="#整个通信流程" class="headerlink" title="整个通信流程"></a>整个通信流程</h2><p>该版本ZMQ中使用到了ZMTP v2.0版本作为消息传递的传输层协议，客户端和服务端的通信主要以如下步骤展开：</p>
@@ -1707,30 +1702,40 @@
 <li>clinet和server首次进行协商，clinet和server建立TCP链接后，首先是client发送greeting报文进行协商，其协商内容主要是ZMTP的版本信息，    抓包分析，三次握手之后client直接发送greeting报文：</li>
 </ol>
 <p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/fuzzing/fuzz20211124111816.png"></p>
-<p>​    对应代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">对应代码如下：</span><br></pre></td></tr></table></figure>
+
+
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">uint8_t</span> greeting[] = &#123;</span><br><span class="line">    <span class="number">0xFF</span>, <span class="comment">/* 在zmq::stream_engine_t::receive_greeting函数中标识该报文为非1.0版本 */</span></span><br><span class="line">    <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="comment">/* Unused */</span></span><br><span class="line">    <span class="number">0x01</span>, <span class="comment">/* zmq::stream_engine_t::receive_greeting函数中标识该报文为非1.0版本 */</span></span><br><span class="line">    <span class="number">0x01</span>, <span class="comment">/* 在zmq::stream_engine_t::select_handshake_fun函数中选择ZMTP 2.0版本 */</span></span><br><span class="line">    <span class="number">0x00</span>, <span class="comment">/* Unused */</span></span><br><span class="line">&#125;;</span><br><span class="line">send(s, greeting, <span class="keyword">sizeof</span>(greeting), <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
 
 <ol start="2">
 <li>server收到greeting报文后，会进行初始化操作，通过调试发现首先进入src/stream_engine.cpp中的zmq::stream_engine_t::in_event()方法中，调用栈大致如下：</li>
 </ol>
 <p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/fuzzing/fuzz20211124193152.png"></p>
-<p>​    在调用tcp_read()读取client消息前，会创建一个缓冲区来存储消息，调用src/raw_decoder.cpp中的get_buffer()方法来申请缓冲区，其内部实现如下，主要使用src/decoder_allocators.cpp中的allocate()方法：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">在调用tcp_read()读取client消息前，会创建一个缓冲区来存储消息，调用src&#x2F;raw_decoder.cpp中的get_buffer()方法来申请缓冲区，其内部实现如下，主要使用src&#x2F;decoder_allocators.cpp中的allocate()方法：</span><br></pre></td></tr></table></figure>
+
+
 <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">void</span> zmq::<span class="keyword">raw_decoder_t</span>::get_buffer (<span class="keyword">unsigned</span> <span class="keyword">char</span> **data_, <span class="keyword">size_t</span> *size_)</span><br><span class="line">&#123;</span><br><span class="line">    *data_ = _allocator.allocate ();</span><br><span class="line">    *size_ = _allocator.size ();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>​    zmq::shared_message_memory_allocator::allocate()中调用std::malloc()创建一块用于存储稍后所有通信消息的缓冲区，缓冲区大小为0x2008(<code>_max_size + sizeof (zmq::atomic_counter_t)</code>=<code>0x2000+0x8</code>)，申请成功后在_buf前8个字节存放0x00000001,所以<code>_buf</code>起始位置要从<code>_buf+0x8</code>开始算，我调试时<code>_buf</code>为0x7fffe800bb30，：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">zmq::shared_message_memory_allocator::allocate()中调用std::malloc()创建一块用于存储稍后所有通信消息的缓冲区，缓冲区大小为0x2008(</span><br></pre></td></tr></table></figure>
+
+<p><code>_max_size + sizeof (zmq::atomic_counter_t)</code>=<code>0x2000+0x8</code>)，申请成功后在_buf前8个字节存放0x00000001,所以 <code>_buf</code>起始位置要从 <code>_buf+0x8</code>开始算，我调试时 <code>_buf</code>为0x7fffe800bb30，：</p>
 <p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/fuzzing/fuzz20211125160846.png"></p>
-<p>之后存放一个<code>content_t</code>结构体在<code>_bug</code>之后，该结构体用于client端close()关闭连接后来进行server端析构处理，其对于后续缓冲区溢出利用有着关键性的作用：</p>
+<p>之后存放一个 <code>content_t</code>结构体在 <code>_buf</code>之后，该结构体用于client端close()关闭连接后来进行server端析构处理，其对于后续缓冲区溢出利用有着关键性的作用：</p>
 <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">content_t</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="keyword">void</span> *data;</span><br><span class="line">    <span class="keyword">size_t</span> size;</span><br><span class="line">    msg_free_fn *ffn;</span><br><span class="line">    <span class="keyword">void</span> *hint;</span><br><span class="line">    zmq::<span class="keyword">atomic_counter_t</span> refcnt;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
 <p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/fuzzing/fuzz20211125144721.png"></p>
 <ol start="3">
-<li>client接着发送<code>msg_size</code>报文给server。报文格式<code>0x02+msg_size</code>，用来标识接下来server等待接收消息的大小，server在zmq::v2_decoder_t::size_ready方法中处理<code>msg_size</code>，正常流程是如果我们设置的<code>msg_size</code>值大于初始化空间的0x2000则重新分配缓冲区，但由于存在整数溢出漏洞，使得可以绕过缓冲区大小校验进入else流程，else中init()函数直接使用初始化的缓冲区读取client申请的非常大的如0xffffffffffffffff大小的数据，进而导致后续通信过程中产生缓冲区溢出：</li>
+<li>client接着发送 <code>msg_size</code>报文给server。报文格式 <code>0x02+msg_size</code>，用来标识接下来server等待接收消息的大小，server在zmq::v2_decoder_t::size_ready方法中处理 <code>msg_size</code>，正常流程是如果我们设置的 <code>msg_size</code>值大于初始化空间的0x2000则重新分配缓冲区，但由于存在整数溢出漏洞，使得可以绕过缓冲区大小校验进入else流程，else中init()函数直接使用初始化的缓冲区读取client申请的非常大的如0xffffffffffffffff大小的数据，进而导致后续通信过程中产生缓冲区溢出：</li>
 </ol>
 <p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/fuzzing/fuzz20211125161427.png"></p>
-<p>​    依据如上理论，client端设置<code>msg_size=0xffffffffffffffff</code>然后发送：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">依据如上理论，client端设置</span><br></pre></td></tr></table></figure>
+
+<p><code>msg_size=0xffffffffffffffff</code>然后发送：</p>
 <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">uint8_t</span> v2msg[] = &#123;</span><br><span class="line">    <span class="number">0x02</span>, <span class="comment">/* 标识程序进入eight_byte_size_ready状态 */</span></span><br><span class="line">    <span class="number">0xFF</span>, <span class="number">0xFF</span>, <span class="number">0xFF</span>, <span class="number">0xFF</span>, <span class="number">0xFF</span>, <span class="number">0xFF</span>, <span class="number">0xFF</span>, <span class="number">0xFF</span>, <span class="comment">/* msg_size */</span></span><br><span class="line">&#125;;</span><br><span class="line">send(s, v2msg, <span class="keyword">sizeof</span>(v2msg), <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
 
-<p>​    进行调试发现确实进入了else流程，且read_pos位置为初始化的缓冲区<code>_buf</code>+0x8处，<code>msg_size_</code>=0xffffffffffffffff：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">进行调试发现确实进入了else流程，且read_pos位置为初始化的缓冲区</span><br></pre></td></tr></table></figure>
+
+<p><code>_buf</code>+0x8处，<code>msg_size_</code>=0xffffffffffffffff：</p>
 <p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/fuzzing/fuzz20211125163431.png"></p>
 <ol start="4">
 <li>依据第三步理论，client就可以继续发送大小为0x2008-0x8-0x9=0x1FF7=8183字节的数据来填充整个缓冲区，也就是poc中的client端第二次send()发送的内容，这里稍微修改一下，把pc中的pl指向空间用’a’填充，填充后进行通信，server端整个缓冲区的内容如下：</li>
@@ -1747,11 +1752,13 @@
 <li><p>ffn：ffh函数指针地址</p>
 </li>
 <li><p>hint：函数ffn第二个参数</p>
-<p>该处关键点在于client端在执行close()关闭连接时，会进入server端的zmq::msg_t::close ()方法，该方法内部会调用<code>content_t-&gt;ffn</code>函数指针来进行析构：</p>
+<p>该处关键点在于client端在执行close()关闭连接时，会进入server端的zmq::msg_t::close ()方法，该方法内部会调用 <code>content_t-&gt;ffn</code>函数指针来进行析构：</p>
 </li>
 </ul>
 <p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/fuzzing/fuzz20211125173434.png"></p>
-<p>​    所以我们只需要溢出覆盖此结构体中的data、ffn、hint三个字段，即可达到任意函数执行的目的。比如poc中的通过两次覆盖来达到使用system()执行任意命令。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">所以我们只需要溢出覆盖此结构体中的data、ffn、hint三个字段，即可达到任意函数执行的目的。比如poc中的通过两次覆盖来达到使用system()执行任意命令。</span><br></pre></td></tr></table></figure>
+
+
 <h1 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h1><p>本地利用没什么好说的，远程利用可以对前面那0x1FF7大小的缓冲区进行利用执行到任意shellcode，这里不再详述，说太多容易刑，有兴趣可以自己研究。</p>
 <p>参考：</p>
 <p><a href="https://www.freebuf.com/vuls/262410.html">https://www.freebuf.com/vuls/262410.html</a></p>
@@ -1843,7 +1850,7 @@
 <p>该组织常用的攻击手法中对钓鱼邮件的使用颇为频繁，这里我将通过其中一次利用定向钓鱼邮件进行攻击的事件来对APT-28组织做一个攻击手法的了解。</p>
 <h1 id="详细分析"><a href="#详细分析" class="headerlink" title="详细分析"></a>详细分析</h1><p>在进行样本检测时，发现了一个文档“gorodpavlodar.doc”，在VT上进行查找，其最初被检测到的时间为19年，虽然已经是去年开始的活动，但是最近又被检测到了对该文档的请求：</p>
 <p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E5%8D%9A%E5%AE%A2%E7%9B%B8%E5%85%B3/20211219003818.png" alt="img"></p>
-<p>通过溯源分析，发现该文档是发送给哈萨克斯坦的一家大型采矿公司工作的员工的电子邮件中的附件。该电子邮件是从名为“Pavlodar市官方资源”处发送的，检测到其邮件地址为“<a href="mailto:&#x50;&#x61;&#118;&#x6c;&#x6f;&#x64;&#x61;&#114;&#x2e;&#x6e;&#101;&#x77;&#x73;&#64;&#x62;&#x6b;&#x2e;&#x72;&#x75;">&#x50;&#x61;&#118;&#x6c;&#x6f;&#x64;&#x61;&#114;&#x2e;&#x6e;&#101;&#x77;&#x73;&#64;&#x62;&#x6b;&#x2e;&#x72;&#x75;</a>”,这是哈瑟克斯坦的东北部城市帕夫洛达尔，也是帕夫洛达尔地区(Pavlodar Region)的首府。</p>
+<p>通过溯源分析，发现该文档是发送给哈萨克斯坦的一家大型采矿公司工作的员工的电子邮件中的附件。该电子邮件是从名为“Pavlodar市官方资源”处发送的，检测到其邮件地址为“<a href="mailto:&#x50;&#97;&#x76;&#x6c;&#x6f;&#x64;&#x61;&#114;&#x2e;&#110;&#101;&#x77;&#x73;&#64;&#98;&#x6b;&#46;&#114;&#x75;">&#x50;&#97;&#x76;&#x6c;&#x6f;&#x64;&#x61;&#114;&#x2e;&#110;&#101;&#x77;&#x73;&#64;&#98;&#x6b;&#46;&#114;&#x75;</a>”,这是哈瑟克斯坦的东北部城市帕夫洛达尔，也是帕夫洛达尔地区(Pavlodar Region)的首府。</p>
 <p>原始邮件信息为俄文，大致内容如下：</p>
 <p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/%E5%8D%9A%E5%AE%A2%E7%9B%B8%E5%85%B3/20211219003844.png"></p>
 <p>邮件内容显示了关于供热工程相关的信息，然后表明在附件中附上了关于热水供应时间与住宅楼的关系表，希望查看。附件极为上述的攻击载荷，通过宏进行后续攻击。分析如下：</p>
@@ -1881,12 +1888,12 @@
 <thead>
 <tr>
 <th align="center"><strong>名称</strong></th>
-<th><strong>MD5</strong></th>
+<th align="center"><strong>MD5</strong></th>
 </tr>
 </thead>
 <tbody><tr>
 <td align="center">graphic.doc</td>
-<td>57C2B46C7F2AD9ABA80E4B6248F9367A</td>
+<td align="center">57C2B46C7F2AD9ABA80E4B6248F9367A</td>
 </tr>
 </tbody></table>
 <p>其中包含的VBS脚本代码主要是构造了<strong>PROCESS_INFORMATION</strong>和<strong>STARTUPINFO</strong>这两个用于程序启动的结构体，然后启动了程序libssl.exe：</p>
@@ -1899,12 +1906,12 @@
 <thead>
 <tr>
 <th><strong>名称</strong></th>
-<th><strong>MD5</strong></th>
+<th align="center"><strong>MD5</strong></th>
 </tr>
 </thead>
 <tbody><tr>
 <td>libssl.exe</td>
-<td>27E9247D28598207794424EEB5EA4B1B</td>
+<td align="center">27E9247D28598207794424EEB5EA4B1B</td>
 </tr>
 </tbody></table>
 <p>主要完成如下功能：</p>
