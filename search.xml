@@ -2147,10 +2147,9 @@
       </tags>
   </entry>
   <entry>
-    <title></title>
+    <title>python+selenium模拟点击实现自动化</title>
     <url>/2022/10/10/%E5%BC%80%E5%8F%91/%E6%9D%82%E9%A1%B9/python+selenium%20%E5%AE%9E%E7%8E%B0%E8%87%AA%E5%8A%A8%E5%8C%96/</url>
-    <content><![CDATA[<p>[toc]</p>
-<h1 id="0-概述"><a href="#0-概述" class="headerlink" title="0. 概述"></a>0. 概述</h1><p>人生苦短，作为一个黑客，重复工作自动化是一个非常必要的选择。</p>
+    <content><![CDATA[<h1 id="0-前言"><a href="#0-前言" class="headerlink" title="0. 前言"></a>0. 前言</h1><p>人生苦短，作为一个黑客，重复工作自动化是一个非常必要的选择。</p>
 <p>这里笔者由于英文水平不过关，还想看国外的课，所以需要来个中文字幕，国内好用的是<a href="https://jianwai.youdao.com/">网易见外</a>，他可以网页操作，翻译质量还是可以的。</p>
 <p>但由于课太多，每一节课的上传、翻译、导出都人工就太浪费生命了，所以我选择selenium来完成模拟点击操作，具体如下：</p>
 <h1 id="1-环境搭建"><a href="#1-环境搭建" class="headerlink" title="1. 环境搭建"></a>1. 环境搭建</h1><ol>
