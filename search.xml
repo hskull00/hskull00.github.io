@@ -1863,11 +1863,11 @@
 
 <p><img src="https://cdn.jsdelivr.net/gh//hskull00/images/Docker/20220722121356.png"></p>
 <p>至于其它关于容器、镜像的命令，都可以通过help来查看详细说明，用到就会了，这里不列举了。</p>
-<h1 id="Docker仓库管理"><a href="#Docker仓库管理" class="headerlink" title="Docker仓库管理"></a>Docker仓库管理</h1><p>配置好环境的镜像理论上可以存在任意位置，但为了方便随时取用，放在网上是一个好的选择，可以选择放github、Docker hub等地方。</p>
+<h1 id="5-Docker仓库管理"><a href="#5-Docker仓库管理" class="headerlink" title="5. Docker仓库管理"></a>5. Docker仓库管理</h1><p>配置好环境的镜像理论上可以存在任意位置，但为了方便随时取用，放在网上是一个好的选择，可以选择放github、Docker hub等地方。</p>
 <p><a href="https://hub.docker.com/">Docker hub</a>是Docker官方维护的一个公共仓库，可以提供给个人、团队使用，个人使用免费，注册一个账号就可以用了:</p>
 <p><img src="https://cdn.jsdelivr.net/gh//hskull00/images/Docker/20220722152731.png"></p>
 <p>使用的时候通过 <code>docker login</code>登录，登陆后可以拉取到自己的全部镜像，也可以通过 <code>docker push</code>推送自己的镜像到Docker hub，使用完毕后退出 <code>docker logout</code>。</p>
-<p>如上，docker基础的安装和使用大致就这些内容，后面我会通过Docker安装Node.js来把博客的本地环境进行下迁移。</p>
+<h1 id="6-Dockerfile"><a href="#6-Dockerfile" class="headerlink" title="6. Dockerfile"></a>6. Dockerfile</h1><p>如上，docker基础的安装和使用大致就这些内容，后面我会通过Docker安装Node.js来把博客的本地环境进行下迁移。</p>
 <p>参考:</p>
 <p><a href="https://www.ruanyifeng.com/blog/2018/02/docker-tutorial.html">https://www.ruanyifeng.com/blog/2018/02/docker-tutorial.html</a></p>
 <p><a href="https://www.runoob.com/docker/docker-architecture.html">https://www.runoob.com/docker/docker-architecture.html</a></p>
@@ -1883,26 +1883,27 @@
   <entry>
     <title>一篇文章教会你搭建自己的博客</title>
     <url>/2020/12/01/%E6%95%99%E7%A8%8B/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2/</url>
-    <content><![CDATA[<p>​    想搭建一个博客很久了，但最近才着手做了这个事。使用博客记录一下平时自己的学习内容，同时也逼迫自己坚持学习。</p>
-<p>​    这里采用GitHub+Hexo搭建博客，可以选择买一个.com域名(啥域名都被注册了。。退而求其次整个cn吧，还便宜)，这样输入URL比较有逼格。记得提前买域名，因为要实名认证审核。</p>
-<h1 id="Git下载"><a href="#Git下载" class="headerlink" title="Git下载"></a>Git下载</h1><p>​    首先需要去注册一个GitHub账号，这步省略不说。之后，需要在本地下载一个GitGub客户端，可以去<a href="https://git-scm.com/">Git官网</a>进行下载，这里最新版本是2.29.2。</p>
+    <content><![CDATA[<pre><code>想搭建一个博客很久了，但最近才着手做了这个事。使用博客记录一下平时自己的学习内容，同时也逼迫自己坚持学习。
+
+这里采用GitHub+Hexo搭建博客，可以选择买一个.com域名(啥域名都被注册了。。退而求其次整个cn吧，还便宜)，这样输入URL比较有逼格。记得提前买域名，因为要实名认证审核。</code></pre>
+<h1 id="Git下载"><a href="#Git下载" class="headerlink" title="Git下载"></a>Git下载</h1><pre><code>首先需要去注册一个GitHub账号，这步省略不说。之后，需要在本地下载一个GitGub客户端，可以去[Git官网](https://git-scm.com/)进行下载，这里最新版本是2.29.2。</code></pre>
 <p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201116092100527.png" alt="image-20201116092100527"></p>
-<p>​    安装过程可以配置一些参数，参考链接<a href="https://zhuanlan.zhihu.com/p/103325381">参数配置</a>，安装完成后，在空白处点击鼠标右键，会出现如下图标：</p>
+<pre><code>安装过程可以配置一些参数，参考链接[参数配置](https://zhuanlan.zhihu.com/p/103325381)，安装完成后，在空白处点击鼠标右键，会出现如下图标：</code></pre>
 <p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201116203201882.png" alt="image-20201116203201882"></p>
-<p>​    之后打开Git控制台，输入git即可显示安装后的git信息：</p>
+<pre><code>之后打开Git控制台，输入git即可显示安装后的git信息：</code></pre>
 <p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201116203356662.png" alt="image-20201116203356662"></p>
-<h1 id="绑定GitHub及文件管理"><a href="#绑定GitHub及文件管理" class="headerlink" title="绑定GitHub及文件管理"></a>绑定GitHub及文件管理</h1><h2 id="绑定"><a href="#绑定" class="headerlink" title="绑定"></a>绑定</h2><p>​    虽然可以直接使用GitHub进行文件的上传，但是并不是很好用，所以这里还是选择将git与我们的GitGub账号绑定，利用SSH进行文件的传输。</p>
+<h1 id="绑定GitHub及文件管理"><a href="#绑定GitHub及文件管理" class="headerlink" title="绑定GitHub及文件管理"></a>绑定GitHub及文件管理</h1><h2 id="绑定"><a href="#绑定" class="headerlink" title="绑定"></a>绑定</h2><pre><code>虽然可以直接使用GitHub进行文件的上传，但是并不是很好用，所以这里还是选择将git与我们的GitGub账号绑定，利用SSH进行文件的传输。</code></pre>
 <p>   Windows下Git的用法 和用Liunx下进行GitGub管理类似，首先得生成SSH公钥。利用公钥的好处在于不用每次都进行用户的登陆，使用便捷。使用Windows下的git生成SSH公钥、私钥和将其添加到GitGub的步骤如下：</p>
 <ol>
 <li>一般来说安装选了Git Bash的话，会默认安装SSH。可以打开终端输入ssh命令来查看本机是否装了SSH，如下可以看出已经装了ssh。</li>
 </ol>
 <p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201116215113286.png" alt="image-20201116215113286"></p>
-<p>​    未安装可以用命令apt-get ssh安装</p>
+<pre><code>未安装可以用命令apt-get ssh安装</code></pre>
 <ol start="2">
 <li>接着就是对密钥的生成，首先输入ssh-keygen -t  rsa命令，表示我们指定RSA算法进行密钥的生成，然后回车后手动输入要保存key的目录和文件，这里不输入选择默认就好(想输入也行，都无所谓)。</li>
 </ol>
 <p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201116215903303.png" alt="image-20201116215903303"></p>
-<p>​    这里说明一下在不同系统中，ssh目录的位置：</p>
+<pre><code>这里说明一下在不同系统中，ssh目录的位置：</code></pre>
 <ul>
 <li>Linux：~/.ssh</li>
 <li>Mac：~/.ssh</li>
@@ -1917,10 +1918,10 @@
 </ol>
 <p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201117212136519.png" alt="image-20201117212136519"></p>
 <ol start="5">
-<li>紧接着去验证是否成功，键入命令ssh -T <a href="mailto:&#103;&#x69;&#x74;&#x40;&#x67;&#105;&#116;&#x68;&#x75;&#x62;&#46;&#x63;&#x6f;&#109;">&#103;&#x69;&#x74;&#x40;&#x67;&#105;&#116;&#x68;&#x75;&#x62;&#46;&#x63;&#x6f;&#109;</a>进行链接，首次验证填yes就好：</li>
+<li>紧接着去验证是否成功，键入命令ssh -T <a href="mailto:&#103;&#x69;&#x74;&#64;&#103;&#x69;&#116;&#x68;&#x75;&#98;&#x2e;&#x63;&#111;&#109;">&#103;&#x69;&#x74;&#64;&#103;&#x69;&#116;&#x68;&#x75;&#98;&#x2e;&#x63;&#111;&#109;</a>进行链接，首次验证填yes就好：</li>
 </ol>
 <p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201117212409292.png" alt="image-20201117212409292"></p>
-<h2 id="文件管理"><a href="#文件管理" class="headerlink" title="文件管理"></a>文件管理</h2><p>​    第一次进行Git仓库的管理，本地是没有git仓库的，这时需要经历如下的步骤，然后使得可以操控远程仓库进行文件管理：</p>
+<h2 id="文件管理"><a href="#文件管理" class="headerlink" title="文件管理"></a>文件管理</h2><pre><code>第一次进行Git仓库的管理，本地是没有git仓库的，这时需要经历如下的步骤，然后使得可以操控远程仓库进行文件管理：</code></pre>
 <ul>
 <li>首先直接将远程仓库clone到本地</li>
 <li>然后将文件添加并commit到本地仓库</li>
@@ -1979,10 +1980,8 @@
 
 <p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201129185538116.png" alt="image-20201129185538116"></p>
 <ul>
-<li><p>在系统变量下新建一个变量，变量名为”NODE_PATH”，变量值为”D:\Program Files\nodejs\node_modules”。并将nmp对应的路径修改为”D:\Program Files\nodejs\node_global”</p>
-</li>
-<li><p>验证测试，利用命令npm install -g webpack-cli 安装webpack模块进行测试，成功安装后该模块被放在了我们新建的node_global中：</p>
-</li>
+<li>在系统变量下新建一个变量，变量名为”NODE_PATH”，变量值为”D:\Program Files\nodejs\node_modules”。并将nmp对应的路径修改为”D:\Program Files\nodejs\node_global”</li>
+<li>验证测试，利用命令npm install -g webpack-cli 安装webpack模块进行测试，成功安装后该模块被放在了我们新建的node_global中：</li>
 </ul>
 <p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201129191523497.png" alt="image-20201129191523497"></p>
 <p>这里要注意，为什么我要安装webpack的CLI，因为在webpack3中，webpack本身和他的CLI都是在一个包中的，但是在最新的webpack4中，这两者被分开了，如果用webpack单独安装，查看版本时会显示如下错误，提示CLI不存在。这种情况下若想使用webpack命令，需要进入“node_modules/.bin/webpack”才能执行命令：</p>
@@ -1992,7 +1991,7 @@
 <h1 id="Hexo的安装"><a href="#Hexo的安装" class="headerlink" title="Hexo的安装"></a>Hexo的安装</h1><ul>
 <li>Hexo是搭建个人博客最常用到的框架，通过npm install -g hexo-cli进行安装。新建一个Blog文件夹，然后Git Bash终端进入Blog目录，键入npm命令安装Hexo，因为有墙的关系，所以经常会安装错误，可以手动修改一下源地址为淘宝的NPM镜像源：</li>
 </ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">npm config set registry http://registry.npm.taobao.org/</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">npm config set registry http://registry.npm.taobao.org/</span><br><span class="line">npm install -g hexo-cli</span><br><span class="line">hexo -v</span><br></pre></td></tr></table></figure>
 
 <ul>
 <li>安装完成后输入hexo init命令进行初始化，如果卡在下述提示不动，说明因为墙导致从github下载hexo库出问题，可以选择切换一下手机热点(简单，亲测有效)，或者设置一个github代理：</li>
@@ -2009,7 +2008,7 @@
 <p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201129210202166.png" alt="image-20201129210202166"></p>
 <p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201129210058129.png" alt="image-20201129210058129"></p>
 <h1 id="将Hexo部署到GitHub"><a href="#将Hexo部署到GitHub" class="headerlink" title="将Hexo部署到GitHub"></a>将Hexo部署到GitHub</h1><ul>
-<li>首先我们得去GitHub上创建一个对应的仓库，要注意对于仓库的名称尽量写为<code>用户名.github.io</code>的形式(一定记住用户名命名)，不然会存在一些问题。因为这个名称会对应博客的网站，而且博客的图片显示有问题(亲测)，所以建议还是用我上面那个方式命名，除非你买个域名。创建成功后拿到仓库地址。</li>
+<li>首先我们得去GitHub上创建一个对应的仓库，要注意对于仓库的名称尽量写为 <code>用户名.github.io</code>的形式(一定记住用户名命名)，不然会存在一些问题。因为这个名称会对应博客的网站，而且博客的图片显示有问题(亲测)，所以建议还是用我上面那个方式命名，除非你买个域名。创建成功后拿到仓库地址。</li>
 </ul>
 <p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201129230705411.png" alt="image-20201129230705411"></p>
 <p>在setting下找到GitHub Pages，将Source设置为master</p>
@@ -2069,7 +2068,7 @@
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">git clone git://github.com/theme-next/hexo-theme-next themes/next</span><br></pre></td></tr></table></figure>
 
 <ul>
-<li>任何教程中都会提及两份重要的配置文件，名称为<code>_config.yml</code>，分别为：<ul>
+<li>任何教程中都会提及两份重要的配置文件，名称为 <code>_config.yml</code>，分别为：<ul>
 <li>位于站点根目录下的<strong>站点配置文件</strong>，用于网站的基础配置</li>
 <li>位于themes目录下的<strong>主题配置文件</strong>，用于主题相关的配置</li>
 </ul>
@@ -2093,7 +2092,7 @@
 <h1 id="发布第一篇文章"><a href="#发布第一篇文章" class="headerlink" title="发布第一篇文章"></a>发布第一篇文章</h1><ul>
 <li>使用命令创建文章：</li>
 </ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> hexo new [layout] &lt;title&gt;</span>      </span><br><span class="line"><span class="meta">#</span><span class="bash">这里layout选填，默认为Post，可以通过修改 _config.yml 中的 default_layout 参数来指定默认布局</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> hexo new [layout] &lt;title&gt;</span>    </span><br><span class="line"><span class="meta">#</span><span class="bash">这里layout选填，默认为Post，可以通过修改 _config.yml 中的 default_layout 参数来指定默认布局</span></span><br></pre></td></tr></table></figure>
 
 <p>该命令会在/sources/_posts下创建一个title.md的文件，然后就可以编辑md文件写自己的文章了。也可以直接将写好的md文件放入对于目录下，配置号下述属性即可。</p>
 <ul>
@@ -2134,7 +2133,7 @@
 </tr>
 </tbody></table>
 <ul>
-<li> 接下来hexo s本地测试一下，成功完成文章发布：</li>
+<li>接下来hexo s本地测试一下，成功完成文章发布：</li>
 </ul>
 <p><img src="https://cdn.jsdelivr.net/gh/hskull00/Images/Linux%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%88%86%E6%9E%90/image-20201202005452612.png" alt="image-20201202005452612"></p>
 <p>你也可以部署三步曲进行部署，然后用域名进入测试，结果一般都是ok的。</p>
@@ -2145,6 +2144,33 @@
       <tags>
         <tag>博客</tag>
         <tag>教程</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title></title>
+    <url>/2022/10/10/%E5%BC%80%E5%8F%91/%E6%9D%82%E9%A1%B9/python+selenium%20%E5%AE%9E%E7%8E%B0%E8%87%AA%E5%8A%A8%E5%8C%96/</url>
+    <content><![CDATA[<p>[toc]</p>
+<h1 id="0-概述"><a href="#0-概述" class="headerlink" title="0. 概述"></a>0. 概述</h1><p>人生苦短，作为一个黑客，重复工作自动化是一个非常必要的选择。</p>
+<p>这里笔者由于英文水平不过关，还想看国外的课，所以需要来个中文字幕，国内好用的是<a href="https://jianwai.youdao.com/">网易见外</a>，他可以网页操作，翻译质量还是可以的。</p>
+<p>但由于课太多，每一节课的上传、翻译、导出都人工就太浪费生命了，所以我选择selenium来完成模拟点击操作，具体如下：</p>
+<h1 id="1-环境搭建"><a href="#1-环境搭建" class="headerlink" title="1. 环境搭建"></a>1. 环境搭建</h1><ol>
+<li>首先需要安装下selenium库，selenium已经出到4.x版本了，但python 3.x好像还是不能兼容，所以我选择了比较稳的selenium-3.14.0   安装直接 <code>pip install selenium=3.14.0 即可</code></li>
+<li>接下来需要安装浏览器驱动，可选的有chrome和Firefox，下载完成后解压放在一个目录，记住路径，比如E:\WebDriver<ol>
+<li>Chrome驱动文件下载：<a href="https://chromedriver.storage.googleapis.com/index.html?path=2.35/">点击下载chromedrive</a></li>
+<li>Firefox驱动文件下载:<a href="https://github.com/mozilla/geckodriver/releases">点解下载geckodriver</a></li>
+</ol>
+</li>
+<li>最后配置刚下载的Webdriver驱动的环境变量，我的电脑–&gt;属性–&gt;系统设置–&gt;高级–&gt;环境变量–&gt;系统变量–&gt;Path下添加对应环境变量：E:\WebDriver</li>
+</ol>
+<h1 id="2-代码编写"><a href="#2-代码编写" class="headerlink" title="2. 代码编写"></a>2. 代码编写</h1><p>直接把代码开源了，具体selenium使用非常简单，网上随便搜搜就会用了，花时间的地方在找对应元素。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"> </span><br><span class="line">python</span><br><span class="line">#自动翻译本地英文字幕</span><br><span class="line">from argparse import Action</span><br><span class="line">from ast import Load</span><br><span class="line">from cgi import print_arguments</span><br><span class="line">from distutils.log import Log</span><br><span class="line">from glob import glob</span><br><span class="line">from importlib.metadata import files</span><br><span class="line">import logging</span><br><span class="line">import time,os</span><br><span class="line">from xml.etree.ElementTree import Element</span><br><span class="line">from selenium import webdriver</span><br><span class="line"> </span><br><span class="line">#网址</span><br><span class="line">login&#x3D;&quot;https:&#x2F;&#x2F;jianwai.youdao.com&#x2F;&quot;                #官网</span><br><span class="line"> </span><br><span class="line">#填自己的</span><br><span class="line">user&#x3D;&quot;&quot;</span><br><span class="line">psd&#x3D;&quot;&quot;</span><br><span class="line"> </span><br><span class="line">filesPathList&#x3D;[]</span><br><span class="line">#目录同样自己控制</span><br><span class="line">dir&#x3D;&quot;E:\AutoTranslate\srcSrt&quot;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">#打开chrome  设置好下载参数</span><br><span class="line">options&#x3D;webdriver.ChromeOptions()</span><br><span class="line">prefs &#x3D; &#123;&#39;profile.default_content_settings.popups&#39;: 0, &#39;download.default_directory&#39;: dir&#125;</span><br><span class="line">options.add_experimental_option(&#39;prefs&#39;, prefs)</span><br><span class="line">driver&#x3D;webdriver.Chrome(chrome_options&#x3D;options)</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">#login</span><br><span class="line">def Login():</span><br><span class="line">    global driver</span><br><span class="line">    #打开官网</span><br><span class="line">    driver.get(login)</span><br><span class="line">    time.sleep(2)</span><br><span class="line">    #切换到iframe，不然找不到元素</span><br><span class="line">    iframe &#x3D; driver.find_element_by_xpath(&#39;&#x2F;&#x2F;div[@id&#x3D;&quot;urs-login-block&quot;]&#x2F;iframe&#39;)</span><br><span class="line">    driver.switch_to_frame(iframe)</span><br><span class="line">    time.sleep(2)</span><br><span class="line">    #输入账好</span><br><span class="line">    driver.find_element_by_name(&quot;email&quot;).clear()</span><br><span class="line">    driver.find_element_by_name(&quot;email&quot;).send_keys(user)</span><br><span class="line">    time.sleep(1)</span><br><span class="line">    #输入密码</span><br><span class="line">    driver.find_element_by_name(&quot;password&quot;).clear()</span><br><span class="line">    driver.find_element_by_name(&quot;password&quot;).send_keys(psd)</span><br><span class="line">    time.sleep(1)</span><br><span class="line">    #登录</span><br><span class="line">    driver.find_element_by_xpath(&#39;&#x2F;&#x2F;*[@id&#x3D;&quot;dologin&quot;]&#39;).click()</span><br><span class="line"> </span><br><span class="line">#提交</span><br><span class="line">def PushSrcSrt(filePath):</span><br><span class="line">    time.sleep(3)</span><br><span class="line">    driver.find_element_by_class_name(&#39;btn-add&#39;).click()</span><br><span class="line">    time.sleep(1)</span><br><span class="line">    driver.find_element_by_class_name(&#39;desc-2&#39;).click()</span><br><span class="line">    #开始上传</span><br><span class="line">    print(filePath)</span><br><span class="line">    driver.find_element_by_class_name(&#39;f-dn&#39;).send_keys(filePath)</span><br><span class="line">    time.sleep(5)</span><br><span class="line">    driver.find_element_by_class_name(&#39;btn-submit&#39;).click()</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">#导出</span><br><span class="line">def DownloadDstSrt():</span><br><span class="line">    time.sleep(5)</span><br><span class="line">    global driver,filesPathList</span><br><span class="line">    for i in range(len(filesPathList)):</span><br><span class="line">        title&#x3D;driver.find_elements_by_class_name(&#39;title&#39;)[i]</span><br><span class="line">        title.click()</span><br><span class="line">        time.sleep(2)</span><br><span class="line">        try:</span><br><span class="line">            driver.find_element_by_class_name(&#39;btn-download&#39;).click()</span><br><span class="line">        except:</span><br><span class="line">            time.sleep(3)</span><br><span class="line">            driver.find_element_by_class_name(&#39;btn-download&#39;).click()</span><br><span class="line">        time.sleep(5)</span><br><span class="line">        driver.find_element_by_class_name(&#39;confirm&#39;).click()</span><br><span class="line">        time.sleep(2)</span><br><span class="line">        driver.find_element_by_class_name(&#39;icon-back&#39;).click()</span><br><span class="line">        time.sleep(3)</span><br><span class="line"> </span><br><span class="line">#删除上传的</span><br><span class="line">def DeleteSrt():</span><br><span class="line">    time.sleep(5)</span><br><span class="line">    global driver,filesPathList</span><br><span class="line">    for i in range(len(filesPathList)):</span><br><span class="line">        action&#x3D;webdriver.ActionChains(driver)</span><br><span class="line">        action.move_to_element(driver.find_elements_by_class_name(&#39;ft&#39;)[0]).perform()</span><br><span class="line">        time.sleep(2)</span><br><span class="line">        driver.find_elements_by_class_name(&#39;icon-remove&#39;)[0].click()</span><br><span class="line">        time.sleep(3)</span><br><span class="line">        for d in driver.find_elements_by_class_name(&#39;confirm&#39;):</span><br><span class="line">            if(d.text &#x3D;&#x3D; &quot;确定&quot;):</span><br><span class="line">                d.click()</span><br><span class="line">        time.sleep(5)</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">#加载本地srt</span><br><span class="line">def LoadStrFiles():</span><br><span class="line">    global filesPathList,dir</span><br><span class="line">    for root, ds, fs in os.walk(dir):</span><br><span class="line">        for f in fs:</span><br><span class="line">            fullname &#x3D; os.path.join(root, f)</span><br><span class="line">            filesPathList.append(fullname)</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">if __name__&#x3D;&#x3D;&quot;__main__&quot;:</span><br><span class="line">    LoadStrFiles()</span><br><span class="line">    print(filesPathList)</span><br><span class="line">    Login()</span><br><span class="line">    for f in filesPathList:</span><br><span class="line">        PushSrcSrt(f)</span><br><span class="line">    time.sleep(10)</span><br><span class="line">    DownloadDstSrt()</span><br><span class="line">    DeleteSrt()</span><br><span class="line"> </span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>开发</category>
+      </categories>
+      <tags>
+        <tag>selenium</tag>
+        <tag>python</tag>
       </tags>
   </entry>
 </search>
